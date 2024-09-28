@@ -11,6 +11,8 @@ public class ShareMarketContext : DbContext
     public DbSet<EquityStock>           EquityStocks            { get; set; }
     public DbSet<Scheme>                Schemes                 { get; set; }
     public DbSet<SchemeEquityHolding>   SchemeEquityHoldings    { get; set; }
+    public DbSet<EquityHistorySyncLog>  EquityHistorySyncLog    { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -22,6 +24,6 @@ public class ShareMarketContext : DbContext
     }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer("Data Source=XPLOR-INC;Initial Catalog=ShareMarket;User ID=sa;Password=Saini@123;TrustServerCertificate=True");
+        optionsBuilder.UseSqlServer("Data Source=SHARAD;Initial Catalog=ShareMarket;Persist Security Info=True;Integrated Security=true;TrustServerCertificate=True;");
     }
 }

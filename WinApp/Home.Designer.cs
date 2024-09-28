@@ -35,12 +35,13 @@ partial class Home
         BtnSkipYahooError = new Button();
         BtnRSI = new Button();
         Btn14DMA = new Button();
+        button1 = new Button();
         SuspendLayout();
         // 
         // label1
         // 
         label1.AutoSize = true;
-        label1.Location = new Point(188, 10);
+        label1.Location = new Point(568, 43);
         label1.Name = "label1";
         label1.Size = new Size(52, 20);
         label1.TabIndex = 0;
@@ -50,7 +51,7 @@ partial class Home
         // 
         LblStatus.AutoSize = true;
         LblStatus.ForeColor = Color.FromArgb(0, 192, 0);
-        LblStatus.Location = new Point(237, 10);
+        LblStatus.Location = new Point(617, 43);
         LblStatus.Name = "LblStatus";
         LblStatus.Size = new Size(36, 20);
         LblStatus.TabIndex = 1;
@@ -60,11 +61,12 @@ partial class Home
         // 
         BtnLTP.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
         BtnLTP.ForeColor = Color.FromArgb(255, 128, 0);
-        BtnLTP.Location = new Point(0, 0);
+        BtnLTP.Location = new Point(12, 33);
         BtnLTP.Name = "BtnLTP";
-        BtnLTP.Size = new Size(180, 37);
+        BtnLTP.Size = new Size(304, 37);
         BtnLTP.TabIndex = 2;
         BtnLTP.Text = "LTP By Groww";
+        BtnLTP.TextAlign = ContentAlignment.MiddleLeft;
         BtnLTP.UseVisualStyleBackColor = true;
         BtnLTP.Click += BtnLTP_Click;
         // 
@@ -72,11 +74,12 @@ partial class Home
         // 
         BtnYahooHistory.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
         BtnYahooHistory.ForeColor = Color.FromArgb(255, 128, 0);
-        BtnYahooHistory.Location = new Point(0, 42);
+        BtnYahooHistory.Location = new Point(12, 148);
         BtnYahooHistory.Name = "BtnYahooHistory";
-        BtnYahooHistory.Size = new Size(180, 36);
+        BtnYahooHistory.Size = new Size(304, 36);
         BtnYahooHistory.TabIndex = 3;
         BtnYahooHistory.Text = "History By Yahoo";
+        BtnYahooHistory.TextAlign = ContentAlignment.MiddleLeft;
         BtnYahooHistory.UseVisualStyleBackColor = true;
         BtnYahooHistory.Click += BtnYahooHistory_Click;
         // 
@@ -84,11 +87,12 @@ partial class Home
         // 
         BtnSkipYahooError.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
         BtnSkipYahooError.ForeColor = Color.FromArgb(255, 128, 0);
-        BtnSkipYahooError.Location = new Point(200, 42);
+        BtnSkipYahooError.Location = new Point(12, 223);
         BtnSkipYahooError.Name = "BtnSkipYahooError";
-        BtnSkipYahooError.Size = new Size(180, 36);
+        BtnSkipYahooError.Size = new Size(304, 36);
         BtnSkipYahooError.TabIndex = 4;
         BtnSkipYahooError.Text = "Skip Yahoo";
+        BtnSkipYahooError.TextAlign = ContentAlignment.MiddleLeft;
         BtnSkipYahooError.UseVisualStyleBackColor = true;
         BtnSkipYahooError.Click += BtnSkipYahooError_Click;
         // 
@@ -96,11 +100,12 @@ partial class Home
         // 
         BtnRSI.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
         BtnRSI.ForeColor = Color.FromArgb(255, 128, 0);
-        BtnRSI.Location = new Point(406, 42);
+        BtnRSI.Location = new Point(12, 295);
         BtnRSI.Name = "BtnRSI";
-        BtnRSI.Size = new Size(180, 36);
+        BtnRSI.Size = new Size(304, 36);
         BtnRSI.TabIndex = 5;
         BtnRSI.Text = "Calculate RSI";
+        BtnRSI.TextAlign = ContentAlignment.MiddleLeft;
         BtnRSI.UseVisualStyleBackColor = true;
         BtnRSI.Click += BtnRSI_Click;
         // 
@@ -108,19 +113,34 @@ partial class Home
         // 
         Btn14DMA.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
         Btn14DMA.ForeColor = Color.FromArgb(255, 128, 0);
-        Btn14DMA.Location = new Point(615, 42);
+        Btn14DMA.Location = new Point(12, 372);
         Btn14DMA.Name = "Btn14DMA";
-        Btn14DMA.Size = new Size(180, 36);
+        Btn14DMA.Size = new Size(304, 36);
         Btn14DMA.TabIndex = 8;
         Btn14DMA.Text = "Calculate 14DMA";
+        Btn14DMA.TextAlign = ContentAlignment.MiddleLeft;
         Btn14DMA.UseVisualStyleBackColor = true;
         Btn14DMA.Click += Btn14DMA_Click;
+        // 
+        // button1
+        // 
+        button1.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
+        button1.ForeColor = Color.FromArgb(255, 128, 0);
+        button1.Location = new Point(12, 87);
+        button1.Name = "button1";
+        button1.Size = new Size(304, 37);
+        button1.TabIndex = 9;
+        button1.Text = "Sync History for Equiety Pandit";
+        button1.TextAlign = ContentAlignment.MiddleLeft;
+        button1.UseVisualStyleBackColor = true;
+        button1.Click += button1_Click;
         // 
         // Home
         // 
         AutoScaleDimensions = new SizeF(8F, 20F);
         AutoScaleMode = AutoScaleMode.Font;
         ClientSize = new Size(1798, 763);
+        Controls.Add(button1);
         Controls.Add(Btn14DMA);
         Controls.Add(BtnRSI);
         Controls.Add(BtnSkipYahooError);
@@ -147,4 +167,5 @@ partial class Home
     private Button Btn15DMA;
     private Button Btn10DMA;
     private Button Btn14DMA;
+    private Button button1;
 }

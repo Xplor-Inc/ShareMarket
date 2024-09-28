@@ -33,3 +33,11 @@ public class EquityStock : Auditable
 
     public List<EquityPriceHistory>? PriceHistories { get; set; }
 }
+
+public class EquityHistorySyncLog : Auditable
+{
+    public string           Name           { get; set; }
+    public string           Code           { get; set; } = default!;
+    public string           ErrorMessage   { get; set; }
+    public string           Provider       { get; set; }
+}

@@ -8,24 +8,25 @@ namespace ShareMarket.WinApp;
 
 public partial class Home : Form
 {
-    protected ShareMarketContext    DbContext = Program.DbContext;
-    protected WebBrowser            Browser      { get; set; } = new();
-    protected List<EquityStock>     StockList    { get; set; } = [];
-    protected int                   CurrentStock { get; set; }
-    protected string                Url          { get; set; } = string.Empty;
-    public string                   TimeRange    { get; set; } = "?period1=&period2=";
+    protected ShareMarketContext DbContext = Program.DbContext;
+    protected WebBrowser Browser { get; set; } = new();
+    protected List<EquityStock> StockList { get; set; } = [];
+    protected int CurrentStock { get; set; }
+    protected string Url { get; set; } = string.Empty;
+    public string TimeRange { get; set; } = "?period1=&period2=";
     public Home()
     {
         if (Screen.PrimaryScreen != null)
         {
-            Width   = Screen.PrimaryScreen.Bounds.Width;
-            Height  = Screen.PrimaryScreen.Bounds.Height;
+            Width = Screen.PrimaryScreen.Bounds.Width;
+            Height = Screen.PrimaryScreen.Bounds.Height;
         }
         InitializeComponent();
     }
 
     private async void Home_Load(object sender, EventArgs e)
     {
+
         await Utility.MigrateData();
     }
 
@@ -34,25 +35,24 @@ public partial class Home : Form
         var date = DateOnly.FromDateTime(DateTime.Now);
         var x1 = MessageBox.Show($"Are you sure to process to data fro {date:dd-MMM}", "Confirm", MessageBoxButtons.OKCancel);
         if (x1 == DialogResult.Cancel) return;
-        var equities = await DbContext.EquityStocks.Where(s => s.IsActive).AsNoTracking().ToListAsync();
+        var equities = await DbContext.EquityStocks.Where(s => s.IsActive).OrderByDescending(x1 => x1.RankByGroww).AsNoTracking().ToListAsync();
         var count = 0;
         foreach (var item in equities)
         {
-            count++;
-            LblStatus.Text = $"{count}. Groww...{item.Name}";
+
             var r = await GrowwService.GetStockPrice(item.Code);
             if (r != null && r.Ltp == 0)
             {
             }
             if (r != null)
             {
-                item.LTP            = r.Ltp;
-                item.Change         = r.DayChange;
-                item.PChange        = r.DayChangePerc;
-                item.DayHigh        = r.High;
-                item.DayLow         = r.Low;
-                item.UpdatedOn      = DateTimeOffset.Now;
-                item.UpdatedById    = 1;
+                item.LTP = r.Ltp;
+                item.Change = r.DayChange;
+                item.PChange = r.DayChangePerc;
+                item.DayHigh = r.High;
+                item.DayLow = r.Low;
+                item.UpdatedOn = DateTimeOffset.Now;
+                item.UpdatedById = 1;
 
                 DbContext.EquityStocks.Update(item);
                 await DbContext.SaveChangesAsync();
@@ -60,16 +60,16 @@ public partial class Home : Form
 
                 var history = new EquityPriceHistory
                 {
-                    Close       = r.Close,
-                    Code        = item.Code,
+                    Close = r.Close,
+                    Code = item.Code,
                     CreatedById = 1,
-                    CreatedOn   = DateTimeOffset.Now,
-                    Date        = date,
-                    EquityId    = item.Id,
-                    Low         = r.Low,
-                    Name        = item.Name,
-                    High        = r.High,
-                    Open        = r.Open,
+                    CreatedOn = DateTimeOffset.Now,
+                    Date = date,
+                    EquityId = item.Id,
+                    Low = r.Low,
+                    Name = item.Name,
+                    High = r.High,
+                    Open = r.Open,
                 };
                 await Utility.CreateOrUpdateHistory([history]);
             }
@@ -91,9 +91,9 @@ public partial class Home : Form
         Browser.DocumentCompleted += Browser_DocumentCompleted_HistoricalData;
         if (Screen.PrimaryScreen != null)
         {
-            Browser.Width   = Screen.PrimaryScreen.Bounds.Width;
-            Browser.Height  = Screen.PrimaryScreen.Bounds.Height - 100;
-            Browser.Margin  = new Padding(10, 50, 10, 10);
+            Browser.Width = Screen.PrimaryScreen.Bounds.Width;
+            Browser.Height = Screen.PrimaryScreen.Bounds.Height - 100;
+            Browser.Margin = new Padding(10, 50, 10, 10);
         }
         Browser.ScriptErrorsSuppressed = true;
         if (!Controls.Contains(Browser))
@@ -120,16 +120,16 @@ public partial class Home : Form
 
                             histories.Add(new EquityPriceHistory
                             {
-                                Date        = DateOnly.Parse(tds[0]?.InnerText?.Replace(",", "") ?? ""),
-                                Close       = decimal.Parse(tds[4]?.InnerText ?? ""),
-                                Open        = decimal.Parse(tds[1]?.InnerText ?? ""),
-                                High        = decimal.Parse(tds[2]?.InnerText ?? ""),
-                                Low         = decimal.Parse(tds[3]?.InnerText ?? ""),
-                                Code        = StockList[CurrentStock].Code,
-                                Name        = StockList[CurrentStock].Name,
+                                Date = DateOnly.Parse(tds[0]?.InnerText?.Replace(",", "") ?? ""),
+                                Close = decimal.Parse(tds[4]?.InnerText ?? ""),
+                                Open = decimal.Parse(tds[1]?.InnerText ?? ""),
+                                High = decimal.Parse(tds[2]?.InnerText ?? ""),
+                                Low = decimal.Parse(tds[3]?.InnerText ?? ""),
+                                Code = StockList[CurrentStock].Code,
+                                Name = StockList[CurrentStock].Name,
                                 CreatedById = 1,
-                                CreatedOn   = DateTimeOffset.Now,
-                                EquityId    = StockList[CurrentStock].Id
+                                CreatedOn = DateTimeOffset.Now,
+                                EquityId = StockList[CurrentStock].Id
                             });
                         }
 
@@ -188,8 +188,21 @@ public partial class Home : Form
         {
             count++;
             LblStatus.Text = $"{count}/{stocks.Count}. DMA 5...{stock.Name}";
-            await Utility.RSI_X_DMA(5, stock.Code);
+            await Utility.RSI_X_DMA(14, stock.Code);
         }
         MessageBox.Show($"Data processing finished for DMA 5...");
+    }
+
+    private async void button1_Click(object sender, EventArgs e)
+    {
+        var equities = await DbContext.EquityStocks.Where(s => s.IsActive).OrderByDescending(x1 => x1.RankByGroww).AsNoTracking().ToListAsync();
+        var count = 1;
+        foreach (var item in equities)
+        {
+           
+            await GrowwService.SyncPriceEqityPandit(item);
+            count++;
+            LblStatus.Text = $"{count}. Groww...{item.Name}";
+        }
     }
 }
