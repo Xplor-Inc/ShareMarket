@@ -27,8 +27,15 @@ public class EquityStock : Auditable
 
     #region Stratergy
     public decimal          RSI             { get; set; }
-    public decimal          RSI14DMA         { get; set; }
-    public decimal          RSI14DMADiff     { get; set; }
+    public decimal          RSI14EMA        { get; set; }
+    public decimal          RSI14EMADiff    { get; set; }
+    public decimal          DMA5            { get; set; }
+    public decimal          DMA10           { get; set; }
+    public decimal          DMA20           { get; set; }
+    public decimal          DMA50           { get; set; }
+    public decimal          DMA100          { get; set; }
+    public decimal          DMA200          { get; set; }
+
     #endregion
 
     public List<EquityPriceHistory>? PriceHistories { get; set; }

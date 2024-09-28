@@ -33,8 +33,6 @@ partial class Home
         BtnLTP = new Button();
         BtnYahooHistory = new Button();
         BtnSkipYahooError = new Button();
-        BtnRSI = new Button();
-        Btn14DMA = new Button();
         button1 = new Button();
         SuspendLayout();
         // 
@@ -96,32 +94,6 @@ partial class Home
         BtnSkipYahooError.UseVisualStyleBackColor = true;
         BtnSkipYahooError.Click += BtnSkipYahooError_Click;
         // 
-        // BtnRSI
-        // 
-        BtnRSI.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
-        BtnRSI.ForeColor = Color.FromArgb(255, 128, 0);
-        BtnRSI.Location = new Point(12, 295);
-        BtnRSI.Name = "BtnRSI";
-        BtnRSI.Size = new Size(304, 36);
-        BtnRSI.TabIndex = 5;
-        BtnRSI.Text = "Calculate RSI";
-        BtnRSI.TextAlign = ContentAlignment.MiddleLeft;
-        BtnRSI.UseVisualStyleBackColor = true;
-        BtnRSI.Click += BtnRSI_Click;
-        // 
-        // Btn14DMA
-        // 
-        Btn14DMA.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
-        Btn14DMA.ForeColor = Color.FromArgb(255, 128, 0);
-        Btn14DMA.Location = new Point(12, 372);
-        Btn14DMA.Name = "Btn14DMA";
-        Btn14DMA.Size = new Size(304, 36);
-        Btn14DMA.TabIndex = 8;
-        Btn14DMA.Text = "Calculate 14DMA";
-        Btn14DMA.TextAlign = ContentAlignment.MiddleLeft;
-        Btn14DMA.UseVisualStyleBackColor = true;
-        Btn14DMA.Click += Btn14DMA_Click;
-        // 
         // button1
         // 
         button1.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
@@ -141,8 +113,6 @@ partial class Home
         AutoScaleMode = AutoScaleMode.Font;
         ClientSize = new Size(1798, 763);
         Controls.Add(button1);
-        Controls.Add(Btn14DMA);
-        Controls.Add(BtnRSI);
         Controls.Add(BtnSkipYahooError);
         Controls.Add(BtnYahooHistory);
         Controls.Add(BtnLTP);
@@ -163,9 +133,7 @@ partial class Home
     private Button BtnLTP;
     private Button BtnYahooHistory;
     private Button BtnSkipYahooError;
-    private Button BtnRSI;
     private Button Btn15DMA;
     private Button Btn10DMA;
-    private Button Btn14DMA;
     private Button button1;
 }

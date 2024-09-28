@@ -83,7 +83,6 @@ public class Utility
         }
         #endregion
     }
-
     public static async Task CreateOrUpdateHistory(List<EquityPriceHistory> histories)
     {
         foreach (var item in histories)
@@ -106,9 +105,12 @@ public class Utility
                 await DbContext.SaveChangesAsync();
             }
         }
-    }
 
-    public static async Task RSI_X_DMA(int days, string code)
+        await RSICalculation(14, histories.First().Code);
+        await RSI_X_EMA(14, histories.First().Code);
+        await DMACalculation(histories.First().Code);
+    }
+    public static async Task RSI_X_EMA(int days, string code)
     {
         if (days != 14)
             throw new Exception($"RSI will be calculated for only 14 days intervel. {days} not allowed! ");
@@ -123,28 +125,27 @@ public class Utility
             if (i == 27)
             {
                 var rSI14DMA = histories.Skip(days).Take(days).Average(a => a.RSI);
-                histories[i].RSI14DMA = Math.Round(rSI14DMA, 2, MidpointRounding.AwayFromZero);
+                histories[i].RSI14EMA = Math.Round(rSI14DMA, 2, MidpointRounding.AwayFromZero);
             }
             else
             {
-                histories[i].RSI14DMA = Math.Round(((histories[i - 1].RSI14DMA * (days - 1)) + histories[i].RSI) / days, 2, MidpointRounding.AwayFromZero);
-                histories[i].RSI14DMADiff = histories[i].RSI14DMA - histories[i - 1].RSI14DMA;
+                histories[i].RSI14EMA = Math.Round(((histories[i - 1].RSI14EMA * (days - 1)) + histories[i].RSI) / days, 2, MidpointRounding.AwayFromZero);
+                histories[i].RSI14EMADiff = histories[i].RSI14EMA - histories[i - 1].RSI14EMA;
             }
             histories[i].UpdatedOn      = DateTimeOffset.Now;
             histories[i].UpdatedById    = 1;
         }
 
         var last = histories.Last();
-        stock.RSI14DMA      = last.RSI14DMA;
-        stock.RSI14DMADiff  = last.RSI14DMADiff;
+        stock.RSI14EMA      = last.RSI14EMA;
+        stock.RSI14EMADiff  = last.RSI14EMADiff;
         stock.UpdatedById   = last.UpdatedById;
         stock.UpdatedOn     = last.UpdatedOn;
         DbContext.EquityPriceHistories.UpdateRange(histories);
         DbContext.EquityStocks.UpdateRange(stock);
         await DbContext.SaveChangesAsync();
     }
-
-    public static async Task RSICalculation(int days, string? code = null)
+    public static async Task RSICalculation(int days, string code)
     {
         var stock = await DbContext.EquityStocks.Where(x => x.IsActive && x.Code == code).FirstOrDefaultAsync();
         if (stock is null) return;
@@ -205,6 +206,45 @@ public class Utility
         await DbContext.SaveChangesAsync();
     }
 
+    public static async Task DMACalculation(string code)
+    {
+        var stock = await DbContext.EquityStocks.Where(x => x.IsActive && x.Code == code).FirstOrDefaultAsync();
+        if (stock is null) return;
+        var histories = await DbContext.EquityPriceHistories.Where(x => x.Code == code).OrderBy(o => o.Date).ToListAsync();
+        if (histories.Count == 0) return;
+        for (int i = 0; i < histories.Count; i++)
+        {
+            if (i < 4) continue;
+
+            histories[i].DMA5 = histories.Skip(i - 4).Take(5).Average(s => s.Close);
+            if (i > 8)
+                histories[i].DMA10 = histories.Skip(i - 9).Take(10).Average(s => s.Close);
+            
+            if (i > 18)
+                histories[i].DMA20 = histories.Skip(i - 19).Take(20).Average(s => s.Close);
+            
+            if (i > 48)
+                histories[i].DMA50 = histories.Skip(i - 49).Take(50).Average(s => s.Close);
+            
+            if (i > 98)
+                histories[i].DMA100 = histories.Skip(i - 99).Take(100).Average(s => s.Close);
+            
+            if (i > 198)
+                histories[i].DMA200 = histories.Skip(i - 199).Take(200).Average(s => s.Close); 
+        }
+
+        var last = histories.Last();
+        stock.DMA5      = last.DMA5;
+        stock.DMA10     = last.DMA10;
+        stock.DMA20     = last.DMA20;
+        stock.DMA50     = last.DMA50;
+        stock.DMA100    = last.DMA100;
+        stock.DMA200    = last.DMA200;
+
+        DbContext.EquityPriceHistories.UpdateRange(histories);
+        DbContext.EquityStocks.UpdateRange(stock);
+        await DbContext.SaveChangesAsync();
+    }
     public static async Task RSIIncrementalAsync(string code)
     {
         var stock = await DbContext.EquityStocks.Where(x => x.IsActive && x.Code == code).FirstOrDefaultAsync();
@@ -257,8 +297,17 @@ public class Utility
         }
     }
 
-    public static async Task GetData(int records)
+    public static DateOnly GetLastThursdayOfMonth(int year, int month)
     {
-        var sx = await DbContext.EquityStocks.Where(x => x.IsActive).Take(records).AsNoTracking().ToListAsync();
+        // Start with the last day of the month
+        DateOnly lastDayOfMonth = new(year, month, DateTime.DaysInMonth(year, month));
+
+        // Work backward to find the last Thursday
+        while (lastDayOfMonth.DayOfWeek != DayOfWeek.Thursday)
+        {
+            lastDayOfMonth = lastDayOfMonth.AddDays(-1);
+        }
+
+        return lastDayOfMonth;
     }
 }

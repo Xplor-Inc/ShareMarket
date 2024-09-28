@@ -188,7 +188,7 @@ public partial class Home : Form
         {
             count++;
             LblStatus.Text = $"{count}/{stocks.Count}. DMA 5...{stock.Name}";
-            await Utility.RSI_X_DMA(14, stock.Code);
+            await Utility.RSI_X_EMA(14, stock.Code);
         }
         MessageBox.Show($"Data processing finished for DMA 5...");
     }
@@ -199,10 +199,9 @@ public partial class Home : Form
         var count = 1;
         foreach (var item in equities)
         {
-           
+            LblStatus.Text = $"{count}. Equity Pandit...{item.Name}";
             await GrowwService.SyncPriceEqityPandit(item);
             count++;
-            LblStatus.Text = $"{count}. Groww...{item.Name}";
         }
     }
 }
