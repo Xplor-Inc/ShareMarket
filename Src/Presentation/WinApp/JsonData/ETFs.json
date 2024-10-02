@@ -1,0 +1,82 @@
+[
+  {
+    "Code": "NIFTYBEES",
+    "Index": "Nifty 50",
+    "Expiry": "Thursday"
+  },
+  {
+    "Code": "ITBEES",
+    "Index": "Nifty IT TRI",
+    "Expiry": "Thursday"
+  },
+  {
+    "Code": "BANKBEES",
+    "Index": "Nifty Bank",
+    "Expiry": "Wednesday"
+  },
+  {
+    "Code": "BANKIETF",
+    "Index": "Nifty Bank",
+    "Expiry": "Wednesday"
+  },
+  {
+    "Code": "MID150BEES",
+    "Index": "Nifty Midcap 150 TRI",
+    "Expiry": "Monday"
+  },
+  {
+    "Code": "NIFTYETF",
+    "Index": "Nifty 50",
+    "Expiry": "Thursday"
+  },
+  {
+    "Code": "NIFTYIETF",
+    "Index": "Nifty 50",
+    "Expiry": "Thursday"
+  },
+  {
+    "Code": "SETFNIF50",
+    "Index": "Nifty 50",
+    "Expiry": "Thursday"
+  },
+  {
+    "Code": "BANKNIFTY1",
+    "Index": "Nifty Bank",
+    "Expiry": "Wednesday"
+  },
+  {
+    "Code": "UTINIFTETF",
+    "Index": "Nifty 50",
+    "Expiry": "Thursday"
+  },
+  {
+    "Code": "SETFNIFBK",
+    "Index": "Nifty Bank",
+    "Expiry": "Wednesday"
+  },
+  {
+    "Code": "BFSI",
+    "Index": "Nifty Financial Services Index",
+    "Expiry": "Tuesday"
+  },
+  {
+    "Code": "NIFTY1",
+    "Index": "Nifty 50",
+    "Expiry": "Thursday"
+  },
+  {
+    "Code": "BSLNIFTY",
+    "Index": "Nifty 50",
+    "Expiry": "Thursday"
+  },
+  {
+    "Code": "SENSEXIETF",
+    "Index": "SENSEX",
+    "Expiry": "Friday"
+  },
+  {
+    "Code": "HDFCSENSEX",
+    "Index": "SENSEX",
+    "Expiry": "Friday"
+  }
+]

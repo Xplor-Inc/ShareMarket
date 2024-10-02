@@ -1,0 +1,28 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager navManager
+
+@using Blazorise.Components;
+@using Blazorise.Snackbar;
+@using Blazorise;
+@if (!navManager.Uri.ToString().Contains("/templates/email/"))
+{
+    <NavMenu />
+}
+
+<main class="container-body container">
+    @Body
+</main>
+
+@if (!navManager.Uri.ToString().Contains("/templates/email/"))
+{
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+
+    <ToastProvider Animated="true" AnimationDuration=50 Autohide="true" PlacementStrategy="ToasterPlacementStrategy.Absolute"
+                   AutohideDelay=300000 Placement="ToasterPlacement.TopEnd" />
+    <MessageProvider />
+
+}

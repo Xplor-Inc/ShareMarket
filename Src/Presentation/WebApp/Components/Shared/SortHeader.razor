@@ -1,0 +1,27 @@
+﻿@using Blazorise;
+@if (SortByColumn == SortBy && SortOrder == "DESC")
+{
+    <Icon Name="IconName.AngleDown" style="color:#0dcaf0" />
+}
+else if (SortByColumn == SortBy && SortOrder == "ASC")
+{
+    <Icon Name="IconName.AngleUp" style="color:#0dcaf0" />
+}
+else
+{
+    <Icon Name="IconName.AngleUp" style="color:black" />
+}
+
+
+@code {
+
+    [Parameter]
+    public string SortOrder { get; set; } = "DESC";
+
+    [Parameter]
+    public string SortBy { get; set; } = "TransactionDate";
+
+    [Parameter]
+    public string SortByColumn { get; set; } = string.Empty;
+
+}
