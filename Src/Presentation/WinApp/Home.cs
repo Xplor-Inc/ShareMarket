@@ -36,7 +36,7 @@ public partial class Home : Form
 
     private async void BtnGrowwLTP_Click(object sender, EventArgs e)
     {
-        var date = DateOnly.FromDateTime(DateTime.Now).AddDays(-1);
+        var date = DateOnly.FromDateTime(DateTime.Now);
         var startTime = DateTime.Now;
         var x1 = MessageBox.Show($"Are you sure to process to data fro {date:dd-MMM}", "Confirm", MessageBoxButtons.OKCancel);
         if (x1 == DialogResult.Cancel) return;
@@ -64,7 +64,7 @@ public partial class Home : Form
 
                 DbContext.EquityStocks.Update(item);
                 await DbContext.SaveChangesAsync();
-                LblStatus.Text = $"{count}. Updating history for...{item.Name} as Date {date:dd-MMM-yyyy}";
+                LblStatus.Text = $"{count + 1}/{equities.Count}. Updating history for...{item.Name} as Date {date:dd-MMM-yyyy}";
 
                 var history = new EquityPriceHistory
                 {
@@ -225,12 +225,7 @@ public partial class Home : Form
 
         var code = ((List<EquityStock>)source)[e.RowIndex];
         if (code == null) return;
-        if (code.DMA5 > code.LTP)
-            Grd102050DMA.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.BackColor = Color.Green;
-        if (code.DMA10 > code.LTP)
-            Grd102050DMA.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.BackColor = Color.Green;
-        if (code.DMA20 > code.LTP)
-            Grd102050DMA.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.BackColor = Color.Green;
+
     }
 
     private async void BtnFundamentals_Click(object sender, EventArgs e)
@@ -269,41 +264,42 @@ public partial class Home : Form
         MessageBox.Show(LblStatus.Text);
     }
     
-    private async void BtnTradeBook(object sender, EventArgs e)
+    private async void BtnTradeBook1(object sender, EventArgs e)
     {
-        DateOnly start = new(2024, 9, 1);
+        DateOnly start = new(2024, 1, 1);
         var today = DateOnly.FromDateTime(DateTime.Now);
         List<TradeBook> tradesTaken = [];
         decimal capitalUsed = 0;
-        DateOnly traddingTill = new(2024, 9, 30);
+        DateOnly traddingTill = new(2024, 8, 31);
+        int MaxCap = 10000; // Per Trade
         while (start <= traddingTill)
         {
             LblStatus.Text = $"Trading for Day of - {start:dd-MMM-yyyy}";
 
-            var availabeTrades = await DbContext.EquityPriceHistories.Where(x => x.RSI14EMADiff < -1 && x.Date == start).Include(e => e.Equity).ToListAsync();
+            var availabeTrades = await DbContext.EquityPriceHistories.Where(x => x.Equity.RankByGroww >= 25 
+                                    && x.RSI14EMADiff < -1 && x.Equity.ROE >= 15 && x.Equity.LTP < 5000 
+                                    && x.Equity.PE < 60 && x.Date == start).Include(e => e.Equity).ToListAsync();
             var codes = availabeTrades.Select(x => x.Code).ToList();
             codes.AddRange(tradesTaken.Select(x => x.Code));
-            var ZZZ = await DbContext.EquityPriceHistories.Where(x => codes.Contains(x.Code) && x.Date >= start)
+            var sellAble = await DbContext.EquityPriceHistories.Where(x => codes.Contains(x.Code) && x.Date >= start)
                                     .OrderBy(o => o.Date).ToListAsync();
             foreach (var trade in tradesTaken.Where(z => !z.SellDate.HasValue))
             {
                 LblStatus.Text = $"Selling for Month of - {start:dd-MMM-yyyy}";
                 var maxSellDate = trade.BuyDate.AddMonths(1);
-                var s = ZZZ.FirstOrDefault(s => s.Code == trade.Code && s.High >= trade.Target && s.Date <= maxSellDate && s.Date <= start);
+                var s = sellAble.FirstOrDefault(s => s.Code == trade.Code && s.High >= trade.Target && s.Date <= maxSellDate && s.Date <= start);
                 if (s is not null)
                 {
                     trade.SellDate = s.Date;
                     trade.High = s.High;
-                    capitalUsed -= trade.BuyRate;
+                    capitalUsed -= trade.BuyRate * trade.Quantity;
                 }
             }
             foreach (var trade in availabeTrades)
             {
-                if (tradesTaken.Any(f => f.Code == trade.Code && f.SellDate is null))
-                {
-                    continue;
-                }
-                capitalUsed += trade.Close;
+                if (tradesTaken.Any(f => f.Code == trade.Code && f.SellDate is null)) continue;
+                int q = MaxCap / (int)trade.Close + 1;
+                capitalUsed += trade.Close * q;
                 var t = new TradeBook
                 {
                     Low = trade.Low,
@@ -315,8 +311,9 @@ public partial class Home : Form
                     Target = (trade.Close * 5 / 100) + trade.Close,
                     Rank = trade.Equity.RankByGroww,
                     LTP = trade.Equity.LTP,
-                    CapitalUsed = capitalUsed
-
+                    CapitalUsed = capitalUsed,
+                    BuyValue = trade.Close * q,
+                    Quantity = q
                 };
                 tradesTaken.Add(t);
             }
@@ -359,7 +356,6 @@ public partial class Home : Form
                                     .OrderBy(o => o.Date).ToListAsync();
             while (tradeStart <= sellDate)
             {
-                if (tradeStart == sellDate && qqq.Any(g => g.Low < SL) && qqq.Any(g => g.High < trade.Target)) { trade.SameDay = true; }
                 if (tradeStart != sellDate && qqq.Any(g => g.Low < SL)) { trade.StopLoss = true; break; }
                 tradeStart = tradeStart.AddDays(1);
             }
@@ -367,7 +363,153 @@ public partial class Home : Form
 
         GrdAnalysis.Height = Screen.PrimaryScreen?.Bounds.Height - 500 ?? 0;
         GrdAnalysis.DataSource = tradesTaken;
-        ExcelUtlity.CreateExcelFromList(tradesTaken, "D:\\Projects\\Xplor-Inc\\Sep_Cap_5.xlsx");
+     //   ExcelUtlity.CreateExcelFromList(tradesTaken, "D:\\Projects\\Xplor-Inc\\Jul-X.xlsx");
 
     }
+
+    private async void BtnTradeBook(object sender, EventArgs e)
+    {
+        DateOnly start = new(2024, 8, 1);
+        var today = DateOnly.FromDateTime(DateTime.Now);
+        List<TradeBook> tradesTaken = [];
+       // decimal capitalUsed = 0;
+        DateOnly traddingTill = new(2024, 8, 31);
+        int MaxCap = 10000; // Per Trade
+        var SLPer = 7;
+        var tar = 5;
+        string[] RR = ["HDFCBANK"];
+        while (start <= traddingTill)
+        {
+            LblStatus.Text = $"Trading for Day of - {start:dd-MMM-yyyy}";
+
+            var availabeTrades = await DbContext.EquityPriceHistories.Where(x => x.Equity.RankByGroww >= 50 //&& RR.Contains(x.Code)
+                                    && x.RSI14EMADiff < -1 && x.Equity.ROE >= 15 && x.Equity.LTP < 5000
+                                    && x.Equity.PE < 60 && x.Date == start).Include(e => e.Equity).ToListAsync();
+            var codes = availabeTrades.Select(x => x.Code).ToList();
+            codes.AddRange(tradesTaken.Select(x => x.Code));
+            var sellAble = await DbContext.EquityPriceHistories.Where(x => codes.Contains(x.Code) && x.Date == start)
+                                    .OrderBy(o => o.Date).ToListAsync();
+            foreach (var trade in tradesTaken.Where(z => !z.SellDate.HasValue))
+            {
+                var tradeStart = trade.BuyDate;
+                var SL = trade.BuyRate - (trade.BuyRate * SLPer / 100);
+                var sellDate = trade.SellDate ?? trade.BuyDate.AddMonths(1);
+
+                if (sellAble.Any(g => g.Code == trade.Code && g.Date == start && g.Low < SL && !trade.StopLoss))
+                {
+                    trade.SLDate = tradeStart;
+                    trade.StopLoss = true;
+                    trade.CapitalUsed = (SL-trade.BuyRate) * trade.Quantity;
+                    trade.SellRate = SL;
+                    break;
+                }
+                var maxSellDate = trade.BuyDate.AddMonths(1);
+                var s = sellAble.FirstOrDefault(s => s.Code == trade.Code && s.High >= trade.Target && s.Date == start);
+                if (s is not null && trade.SLDate is null)
+                {
+                    trade.SellDate = s.Date;
+                    trade.High = s.High;
+                    trade.CapitalUsed = (trade.Target -trade.BuyRate) * trade.Quantity;
+                    trade.SellRate = trade.Target;
+                }
+            }
+            foreach (var trade in availabeTrades)
+            {
+                if (tradesTaken.Any(f => f.Code == trade.Code && f.SellDate is null )) continue;
+                int q = MaxCap / (int)trade.Close + 1;
+                //capitalUsed += trade.Close * q;
+                var t = new TradeBook
+                {
+                    Low = trade.Low,
+                    BuyDate = trade.Date,
+                    BuyRate = trade.Close,
+                    Code = trade.Code,
+                    Diff = trade.RSI14EMADiff,
+                    Name = trade.Name,
+                    Target = (trade.Close * tar / 100) + trade.Close,
+                    Rank = trade.Equity.RankByGroww,
+                    LTP = trade.Equity.LTP,
+                   // CapitalUsed = capitalUsed,
+                    BuyValue = trade.Close * q,
+                    Quantity = q
+                };
+                tradesTaken.Add(t);
+            }
+
+            start = start.AddDays(1);
+        }
+        var endDate = traddingTill.AddMonths(1);
+        var holdings = tradesTaken.Where(x => !x.SellDate.HasValue && !x.SLDate.HasValue).Select(x => x.Code).ToList();
+        while (start <= endDate)
+        {
+            LblStatus.Text = $"Selling for Month of - {start:dd-MMM-yyyy}";
+            var ZZZ1 = await DbContext.EquityPriceHistories.Where(x => holdings.Contains(x.Code) && x.Date == start)
+                                .OrderBy(o => o.Date).ToListAsync();
+            foreach (var trade in tradesTaken.Where(z => !z.SellDate.HasValue && !z.SLDate.HasValue))
+            {
+                var tradeStart = trade.BuyDate;
+                var SL = trade.BuyRate - (trade.BuyRate * SLPer / 100);
+
+                if (ZZZ1.Any(g => g.Code == trade.Code && g.Low < SL && g.Date == start && !trade.StopLoss))
+                {
+                    trade.SLDate = start;
+                    trade.StopLoss = true;
+                    trade.CapitalUsed = (SL-trade.BuyRate) * trade.Quantity;
+                    trade.SellRate = SL;
+                    break;
+                }
+                var s = ZZZ1.FirstOrDefault(s => s.Code == trade.Code && s.High >= trade.Target && s.Date == start);
+                if (s is not null)
+                {
+                    trade.SellDate = s.Date;
+                    trade.SellRate = trade.Target;
+                    trade.High = s.High;
+                    trade.CapitalUsed =( trade.Target -trade.BuyRate)* trade.Quantity;
+                   // capitalUsed -= trade.Target * trade.Quantity;
+                }
+                //if (!trade.SellDate.HasValue && !trade.StopLoss)
+                //{
+                //    trade.LTP30Days = ZZZ1.LastOrDefault(x => x.Code == trade.Code)?.Close ?? 0;
+                //    trade.SellRate = trade.LTP30Days;
+                //    trade.CapitalUsed = trade.Quantity * (trade.LTP30Days - trade.BuyRate);
+
+                //}
+            }
+            start = start.AddDays(1);
+        }
+
+        foreach (var trade in tradesTaken)
+        {
+            if (trade.SellDate.HasValue)
+                trade.Holding = trade.SellDate.Value.DayOfYear - trade.BuyDate.DayOfYear;
+        }
+        start = new(2024, 1, 1);
+        List<TradeBook> capitals = [];
+        while (start < traddingTill.AddMonths(1))
+        {
+            var buys = tradesTaken.Where(x => x.BuyDate == start);
+            var sells = tradesTaken.Where(x => x.SellDate == start || x.SLDate == start);
+            var bv = buys.Sum(s => s.Quantity * s.BuyRate);
+            var sv = sells.Sum(s => s.SellRate * s.Quantity);
+            if (bv > 0 || sv > 0)
+            {
+                var z = new TradeBook
+                {
+                    BuyDate = start,
+                    BuyRate = bv,
+                    SellRate = sv,
+                };
+                z.CapitalUsed = capitals.Sum(s => s.BuyRate) - capitals.Sum(s => s.SellRate);
+                capitals.Add(z);
+            }
+            start = start.AddDays(1);
+        }
+
+        GrdAnalysis.Height = Screen.PrimaryScreen?.Bounds.Height - 500 ?? 0;
+        GrdAnalysis.DataSource = tradesTaken;
+        ExcelUtlity.CreateExcelFromList(tradesTaken, capitals, $"D:\\Projects\\Xplor-Inc\\{DateTime.Now.Ticks}.xlsx");
+        LblStatus.Text = $"Report is ready";
+
+    }
+
 }

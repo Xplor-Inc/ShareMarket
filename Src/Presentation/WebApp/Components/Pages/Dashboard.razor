@@ -1,0 +1,129 @@
+﻿@page "/dashboard";
+
+@using Blazorise.Components;
+@using Blazorise;
+@using ShareMarket.Core.Entities.Equities
+@using ShareMarket.Core.Services
+
+@attribute [Authorize]
+@inject NavigationManager NavManager
+@inject IJSRuntime JsRuntime
+@inject IRepositoryConductor<EquityStock> EquityStocksRepo;
+
+<h3>
+    Trade Prediction Book
+        @if (RSILess1.Count > 0)
+        {
+        <span style="font-size:14px; color:#ff1f2e">
+            (Buy Date at closing of @(RSILess1.FirstOrDefault()?.LTPDate)
+            or opening of @(RSILess1.FirstOrDefault()?.LTPDate.AddDays(1)))
+        </span>
+    }
+    <span style="font-size:14px; color:green">(Target 5%)</span>
+    <span style="font-size:14px; color:red">(SL 7%)</span>
+</h3>
+@if (RSILess1.Count > 0)
+{
+    <button class="btn btn-success" @onclick=LTPUpdate>Refresh</button>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>SR</th>
+                    <th>Code</th>
+                    <th>Buy Rate</th>
+                    <th>LTP</th>
+                    <th>Target</th>
+                    <th>SL</th>
+                    <th>5DMA</th>
+                    <th>10DMA</th>
+                    <th>20DMA</th>
+                    <th>50DMA</th>
+                    <th>100DMA</th>
+                    <th>RSI Diff</th>
+                    <th>Groww Rank</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < RSILess1.Count; i++)
+                {
+                    var row = RSILess1[i];
+                    string red = "#ff0000";
+                    string green = "#008000";
+                    <tr>
+                        <td>@(i + 1)</td>
+                        <td title="@row.Name">@row.Code</td>
+                        <td>@row.LTP</td>
+                        <td>
+                            <span class="bg-tags" style="color:@(row.PChange > 0 ? green : red);
+                        background-color:@(row.PChange > 0 ? green.HexToRGBA() : red.HexToRGBA())">
+                                @row.PChange.ToString("#.##")
+                            </span>
+                            
+                        </td>
+                        <td>@(row.LTP + (row.LTP * 5 / 100))</td>
+                        <td>@(row.LTP - (row.LTP * 7 / 100))</td>
+                        <td>
+                            <span class="bg-tags" style="color:@(row.DMA5 > row.LTP ? green : red);
+                        background-color:@(row.DMA5 > row.LTP ? green.HexToRGBA() : red.HexToRGBA())">
+                                @row.DMA5
+                            </span>
+                        </td>
+                        <td>
+                            <span class="bg-tags" style="color:@(row.DMA10 > row.LTP ? green : red);
+                        background-color:@(row.DMA10 > row.LTP ? green.HexToRGBA() : red.HexToRGBA())">
+                                @row.DMA10
+                            </span>
+                        </td>
+                        <td>
+                            <span class="bg-tags" style="color:@(row.DMA20 > row.LTP ? green : red);
+                        background-color:@(row.DMA20 > row.LTP ? green.HexToRGBA() : red.HexToRGBA())">
+                                @row.DMA20
+                            </span>
+                        </td>
+                        <td>
+                            <span class="bg-tags" style="color:@(row.DMA50 > row.LTP ? green : red);
+                        background-color:@(row.DMA50 > row.LTP ? green.HexToRGBA() : red.HexToRGBA())">
+                                @row.DMA50
+                            </span>
+                        </td>
+                        <td>
+                            <span class="bg-tags" style="color:@(row.DMA100 > row.LTP ? green : red);
+                        background-color:@(row.DMA100 > row.LTP ? green.HexToRGBA() : red.HexToRGBA())">
+                                @row.DMA100
+                            </span>
+                        </td>
+                        <td>@row.RSI14EMADiff</td>
+                        <td>@row.RankByGroww</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+
+@code {
+    public List<EquityStock> RSILess1 { get; set; } = [];
+
+    protected async override Task OnInitializedAsync()
+    {
+        RSILess1 = await EquityStocksRepo.FindAll(x => x.RSI14EMADiff < -1 && x.ROE >= 15 && x.PE < 60 && x.RankByGroww >= 50, orderBy: e => e.OrderBy("RankByGroww", "DESC"))
+                                                    .ResultObject.ToListAsync();
+        await base.OnInitializedAsync();
+    }
+
+    protected async void LTPUpdate()
+    {
+        GrowwService groww = new GrowwService();
+        foreach (var item in RSILess1)
+        {
+            var resp = await GrowwService.GetLTPPrice(item.Code);
+            if (!resp.HasErrors && resp.ResultObject != null)
+              {
+                item.LTP = resp.ResultObject.Ltp;
+                item.PChange = resp.ResultObject.DayChangePerc;
+              }
+        }
+    }
+}

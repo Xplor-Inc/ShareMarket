@@ -1,0 +1,122 @@
+﻿@page "/virtual-trade";
+
+@using Blazorise.Components;
+@using Blazorise;
+@using ShareMarket.Core.Entities.Equities
+@using ShareMarket.Core.Entities.Tradings
+@using ShareMarket.Core.Services
+
+@attribute [Authorize]
+@inject NavigationManager NavManager
+@inject IJSRuntime JsRuntime
+@inject IRepositoryConductor<EquityPriceHistory> HistoryRepo;
+
+
+@code {
+
+    public List<VirtualTrade> Trades { get; set; } = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var start = new DateOnly(2024, 10, 1);
+
+        var dataX = await HistoryRepo.FindAll(x => x.Date >= start && x.RSI14EMADiff < -1 
+                                                && x.Equity.PE < 600 && x.Equity.ROE >= 15 && x.Equity.RankByGroww >= 0 && x.Close < 5000)
+                                     .ResultObject.ToListAsync();
+        dataX.ForEach(e =>
+        {
+            if (!Trades.Any(a => a.Code == e.Code))
+                Trades.Add(new VirtualTrade
+                {
+                    BuyDate = e.Date,
+                    BuyRate = e.Close,
+                    Code = e.Code,
+                    Quantity = (int)(10000 / e.Close) + 1,
+                });
+        });
+        await base.OnInitializedAsync();
+    }
+
+    protected async void LTPUpdate()
+    {
+        foreach (var item in Trades)
+        {
+            var resp = await GrowwService.GetLTPPrice(item.Code);
+            if (!resp.HasErrors && resp.ResultObject != null)
+            {
+                item.LTP = resp.ResultObject.Ltp;
+            }
+        }
+        StateHasChanged();
+    }
+
+    protected async Task SellTrade(VirtualTrade trade)
+    {
+        if (true)
+        {
+            
+        }
+    }
+
+    protected string RowColor(VirtualTrade trade)
+    {
+        var currentState = ((trade.LTP - trade.BuyRate) / trade.BuyRate * 100).ToFixed();
+        if (currentState > 3) return "green";
+        if (currentState < -3) return "red";
+        if (currentState < 0) return "#edaaaa"; // Light red
+        if (currentState > 0) return "#b9e4b9"; //Light Green
+        return "gray";
+    }
+}
+
+
+<PageTitle>Virtual Trade</PageTitle>
+
+@if (Trades.Count > 0)
+{
+    <button class="btn btn-success" @onclick=LTPUpdate>Refresh</button>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>SR</th>
+                    <th>Code</th>
+                    <th>Buy Rate</th>
+                    <th>Buy Date</th>
+                    <th>LTP</th>
+                    <th>Target</th>
+                    <th>Qty</th>
+                    <th>Buy Value</th>
+                    <th>SL</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Trades.Count; i++)
+                {
+                    var row = Trades[i];
+                    string red = "#ff0000";
+                    string green = "#008000";
+                    <tr style="background-color:@RowColor(row)">
+                        <td>@(i + 1)</td>
+                        <td title="@row.Name">@row.Code</td>
+                        <td>@row.BuyRate</td>
+                        <td>@row.BuyDate.ToString("dd-MMM-yy")</td>
+                        <td>@row.LTP</td>
+                        <td>@(row.BuyRate + (row.BuyRate * 5 / 100))</td>
+                       @*  <td>
+                            <span class="bg-tags" style="color:@(row.DChange > 0 ? green : red);
+                        background-color:@(row.DChange > 0 ? green.HexToRGBA() : red.HexToRGBA())">
+                                @row.DChange.ToString("#.##")
+                            </span>
+                        </td> *@
+                        <td>@row.Quantity</td>
+                        <td>@row.BuyValue</td>
+                        <td>@(row.BuyRate - (row.BuyRate * 7 / 100))</td>
+                        <td>@(((row.LTP - row.BuyRate)/row.BuyRate *100).ToFixed())</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

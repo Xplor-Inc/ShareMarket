@@ -1,6 +1,4 @@
 ﻿using System;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -13,6 +11,28 @@ namespace ShareMarket.WinApp.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "EquityHistorySyncLog",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Code = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ErrorMessage = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Provider = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedById = table.Column<long>(type: "bigint", nullable: false),
+                    CreatedOn = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    UpdatedById = table.Column<long>(type: "bigint", nullable: true),
+                    UpdatedOn = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    DeletedById = table.Column<long>(type: "bigint", nullable: true),
+                    DeletedOn = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EquityHistorySyncLog", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "EquityStocks",
                 columns: table => new
@@ -29,21 +49,36 @@ namespace ShareMarket.WinApp.Migrations
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     IsETFSec = table.Column<bool>(type: "bit", nullable: false),
                     IsFNOSec = table.Column<bool>(type: "bit", nullable: false),
+                    IsRaising = table.Column<bool>(type: "bit", nullable: false),
                     LTP = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    LTPDate = table.Column<DateOnly>(type: "date", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PChange = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    RankByGroww = table.Column<int>(type: "int", nullable: false),
                     SectorName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SharekhanId = table.Column<int>(type: "int", nullable: false),
                     YearHigh = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     YearHighOn = table.Column<DateOnly>(type: "date", nullable: false),
                     YearLow = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     YearLowOn = table.Column<DateOnly>(type: "date", nullable: false),
+                    EPS = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PE = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PD = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Dividend = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    MarketCap = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    FaceValue = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    BookValue = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    DebtEquity = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ROE = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     RSI = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    RSI5DMA = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    RSI5DMADiff = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    RSI10DMA = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    RSI10DMADiff = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    RSI15DMA = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    RSI15DMADiff = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    RSI14EMA = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    RSI14EMADiff = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    DMA5 = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    DMA10 = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    DMA20 = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    DMA50 = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    DMA100 = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    DMA200 = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CreatedById = table.Column<long>(type: "bigint", nullable: false),
                     CreatedOn = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     UpdatedById = table.Column<long>(type: "bigint", nullable: true),
@@ -61,7 +96,7 @@ namespace ShareMarket.WinApp.Migrations
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.SequenceHiLo),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     MetaTitle = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     MetaDesc = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     MetaRobots = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -101,8 +136,14 @@ namespace ShareMarket.WinApp.Migrations
                     Profit = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     RS = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     RSI = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    RSI5DMA = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    RSI5DMADiff = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    RSI14EMA = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    RSI14EMADiff = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    DMA5 = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    DMA10 = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    DMA20 = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    DMA50 = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    DMA100 = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    DMA200 = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CreatedById = table.Column<long>(type: "bigint", nullable: false),
                     CreatedOn = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     UpdatedById = table.Column<long>(type: "bigint", nullable: true),
@@ -182,6 +223,9 @@ namespace ShareMarket.WinApp.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "EquityHistorySyncLog");
+
             migrationBuilder.DropTable(
                 name: "EquityPriceHistories");
 

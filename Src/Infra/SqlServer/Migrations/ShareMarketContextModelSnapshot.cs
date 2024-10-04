@@ -3,29 +3,191 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using ShareMarket.WinApp.Store;
+using ShareMarket.SqlServer;
 
 #nullable disable
 
 namespace ShareMarket.WinApp.Migrations
 {
     [DbContext(typeof(ShareMarketContext))]
-    [Migration("20240928074451_EquityHistorySyncLog")]
-    partial class EquityHistorySyncLog
+    partial class ShareMarketContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.8")
+                .HasAnnotation("ProductVersion", "8.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ShareMarket.WinApp.Entities.EquityHistorySyncLog", b =>
+            modelBuilder.Entity("ShareMarket.Core.Entities.Audits.ChangeLog", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CreatedById")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("EntityName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NewValue")
+                        .HasMaxLength(2056)
+                        .HasColumnType("nvarchar(2056)");
+
+                    b.Property<string>("OldValue")
+                        .HasMaxLength(2056)
+                        .HasColumnType("nvarchar(2056)");
+
+                    b.Property<long>("PrimaryKey")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("PropertyName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ChangeLogs", (string)null);
+                });
+
+            modelBuilder.Entity("ShareMarket.Core.Entities.Audits.EmailAuditLog", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Attachments")
+                        .HasMaxLength(2056)
+                        .HasColumnType("nvarchar(2056)");
+
+                    b.Property<string>("CCEmails")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<long>("CreatedById")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long?>("DeletedById")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("DeletedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Error")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("HeaderText")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("MessageBody")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("Success")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ToEmails")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<long?>("UpdatedById")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EmailAuditLogs", (string)null);
+                });
+
+            modelBuilder.Entity("ShareMarket.Core.Entities.Audits.UserLogin", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Browser")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<long?>("CreatedById")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Device")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("IP")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("IsLoginSuccess")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsValidUser")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("OperatingSystem")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("ServerName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<long?>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserLogins", (string)null);
+                });
+
+            modelBuilder.Entity("ShareMarket.Core.Entities.Equities.EquityHistorySyncLog", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -72,7 +234,7 @@ namespace ShareMarket.WinApp.Migrations
                     b.ToTable("EquityHistorySyncLog");
                 });
 
-            modelBuilder.Entity("ShareMarket.WinApp.Entities.EquityPriceHistory", b =>
+            modelBuilder.Entity("ShareMarket.Core.Entities.Equities.EquityPriceHistory", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -102,6 +264,24 @@ namespace ShareMarket.WinApp.Migrations
 
                     b.Property<DateTimeOffset>("CreatedOn")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<decimal>("DMA10")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("DMA100")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("DMA20")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("DMA200")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("DMA5")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("DMA50")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateOnly>("Date")
                         .HasColumnType("date");
@@ -148,10 +328,10 @@ namespace ShareMarket.WinApp.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("RSI14DMA")
+                    b.Property<decimal>("RSI14EMA")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("RSI14DMADiff")
+                    b.Property<decimal>("RSI14EMADiff")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<long?>("UpdatedById")
@@ -167,13 +347,16 @@ namespace ShareMarket.WinApp.Migrations
                     b.ToTable("EquityPriceHistories", (string)null);
                 });
 
-            modelBuilder.Entity("ShareMarket.WinApp.Entities.EquityStock", b =>
+            modelBuilder.Entity("ShareMarket.Core.Entities.Equities.EquityStock", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("BookValue")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Change")
                         .HasPrecision(18, 2)
@@ -189,6 +372,24 @@ namespace ShareMarket.WinApp.Migrations
                     b.Property<DateTimeOffset>("CreatedOn")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<decimal>("DMA10")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("DMA100")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("DMA20")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("DMA200")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("DMA5")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("DMA50")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal>("DayHigh")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -197,11 +398,23 @@ namespace ShareMarket.WinApp.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<decimal>("DebtEquity")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<long?>("DeletedById")
                         .HasColumnType("bigint");
 
                     b.Property<DateTimeOffset?>("DeletedOn")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<decimal>("Dividend")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("EPS")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("FaceValue")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("IndexName")
                         .IsRequired()
@@ -230,6 +443,12 @@ namespace ShareMarket.WinApp.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<DateOnly>("LTPDate")
+                        .HasColumnType("date");
+
+                    b.Property<decimal>("MarketCap")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -238,13 +457,22 @@ namespace ShareMarket.WinApp.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<decimal>("PD")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("PE")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("ROE")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal>("RSI")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("RSI14DMA")
+                    b.Property<decimal>("RSI14EMA")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("RSI14DMADiff")
+                    b.Property<decimal>("RSI14EMADiff")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("RankByGroww")
@@ -281,7 +509,7 @@ namespace ShareMarket.WinApp.Migrations
                     b.ToTable("EquityStocks", (string)null);
                 });
 
-            modelBuilder.Entity("ShareMarket.WinApp.Entities.Scheme", b =>
+            modelBuilder.Entity("ShareMarket.Core.Entities.Schemes.Scheme", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -339,7 +567,7 @@ namespace ShareMarket.WinApp.Migrations
                     b.ToTable("Schemes", (string)null);
                 });
 
-            modelBuilder.Entity("ShareMarket.WinApp.Entities.SchemeEquityHolding", b =>
+            modelBuilder.Entity("ShareMarket.Core.Entities.Schemes.SchemeEquityHolding", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -427,33 +655,125 @@ namespace ShareMarket.WinApp.Migrations
                     b.ToTable("SchemeEquityHoldings", (string)null);
                 });
 
-            modelBuilder.Entity("ShareMarket.WinApp.Entities.EquityPriceHistory", b =>
+            modelBuilder.Entity("ShareMarket.Core.Entities.Users.User", b =>
                 {
-                    b.HasOne("ShareMarket.WinApp.Entities.EquityStock", "Equity")
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CreatedById")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long?>("DeletedById")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("DeletedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("EmailAddress")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(28)
+                        .HasColumnType("nvarchar(28)");
+
+                    b.Property<bool>("IsActivated")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LastLoginDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(28)
+                        .HasColumnType("nvarchar(28)");
+
+                    b.Property<DateTimeOffset?>("PasswordChangeDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PasswordSalt")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SecurityStamp")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<long?>("UpdatedById")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmailAddress", "DeletedOn")
+                        .IsUnique()
+                        .HasFilter("[DeletedOn] IS NULL");
+
+                    b.ToTable("Users", (string)null);
+                });
+
+            modelBuilder.Entity("ShareMarket.Core.Entities.Audits.UserLogin", b =>
+                {
+                    b.HasOne("ShareMarket.Core.Entities.Users.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ShareMarket.Core.Entities.Equities.EquityPriceHistory", b =>
+                {
+                    b.HasOne("ShareMarket.Core.Entities.Equities.EquityStock", "Equity")
                         .WithMany("PriceHistories")
                         .HasForeignKey("EquityId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Equity");
                 });
 
-            modelBuilder.Entity("ShareMarket.WinApp.Entities.SchemeEquityHolding", b =>
+            modelBuilder.Entity("ShareMarket.Core.Entities.Schemes.SchemeEquityHolding", b =>
                 {
-                    b.HasOne("ShareMarket.WinApp.Entities.EquityStock", "Equity")
+                    b.HasOne("ShareMarket.Core.Entities.Equities.EquityStock", "Equity")
                         .WithMany()
-                        .HasForeignKey("EquityId");
+                        .HasForeignKey("EquityId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("ShareMarket.WinApp.Entities.Scheme", "Scheme")
+                    b.HasOne("ShareMarket.Core.Entities.Schemes.Scheme", "Scheme")
                         .WithMany()
-                        .HasForeignKey("SchemeId");
+                        .HasForeignKey("SchemeId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Equity");
 
                     b.Navigation("Scheme");
                 });
 
-            modelBuilder.Entity("ShareMarket.WinApp.Entities.EquityStock", b =>
+            modelBuilder.Entity("ShareMarket.Core.Entities.Equities.EquityStock", b =>
                 {
                     b.Navigation("PriceHistories");
                 });

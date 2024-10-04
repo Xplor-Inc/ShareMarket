@@ -25,12 +25,12 @@
                         <hr />
                         <ValidationSummary class="text-danger" role="alert" />
                         <div class="form-floating mb-3">
-                            <InputText @bind-Value="Input.UserName" class="form-control" autocomplete="UserName" aria-required="true" placeholder="name@example.com" />
+                            <InputText @bind-Value="Input.UserName" class="form-control" autocomplete="UserName" aria-required="true" placeholder="UserId" />
                             <label for="email" class="form-label">Email</label>
                             <ValidationMessage For="() => Input.UserName" class="text-danger" />
                         </div>
                         <div class="form-floating mb-3">
-                            <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
+                            <InputText type="password" @bind-Value="Input.Password" class="form-control"  placeholder="Password" />
                             <label for="password" class="form-label">Password</label>
                             <ValidationMessage For="() => Input.Password" class="text-danger" />
                         </div>
@@ -74,7 +74,7 @@
     }
     public async Task LoginUser()
     {
-        if (Input.UserName != "HSingh17" || Input.Password != "HSingh17@Year.123")
+        if (Input.UserName != "UserId" || Input.Password != "Password@123")
         {
             errorMessage = "Invalid creds...";
             return;

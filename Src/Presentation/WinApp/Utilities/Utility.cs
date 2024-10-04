@@ -305,7 +305,7 @@ public class Utility
         //                                    && x.DMA5 > x.LTP && x.DMA10 < x.LTP && x.DMA20 < x.LTP && x.RSI14EMADiff < -1)
         //                                    .OrderByDescending(o => o.RankByGroww).ToListAsync();
 
-        var equities = await DbContext.EquityStocks.Where(x => x.RSI14EMADiff < -1 && x.RankByGroww >= 50)
+        var equities = await DbContext.EquityStocks.Where(x => x.RankByGroww >= 50 && x.RSI14EMADiff < -1 && x.ROE >= 15 && x.PE < 60)
                                            .OrderByDescending(o => o.RankByGroww).ToListAsync();
         return equities;
     }
@@ -364,7 +364,6 @@ public class Utility
             worksheet.Cell(row, 10).Value = person.Holding;
             worksheet.Cell(row, 11).Value = person.Rank;
             worksheet.Cell(row, 12).Value = person.StopLoss;
-            worksheet.Cell(row, 13).Value = person.SameDay;
             worksheet.Cell(row, 14).Value = person.CapitalUsed;
             row++;
         }

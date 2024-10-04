@@ -10,6 +10,7 @@
 ::-webkit-scrollbar-thumb {
     box-shadow: inset 0 0 6px #02cbab;
 }
+
 @media (max-width: 768px) {
     .whatsApp {
         display: block;
@@ -32,6 +33,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
 .slider-background {
     background-position: top;
     background-repeat: no-repeat;
@@ -39,21 +41,26 @@
     background-size: cover;
     padding-top: 5vh;
 }
+
 .snackbar-stack-bottom-end {
     right: 1.5rem;
-    top:80px;
+    top: 80px;
 }
+
 .snackbar-stack {
     z-index: 9999 !important;
 }
+
 hr {
     margin: 0.5rem 0rem;
     opacity: 1;
     background-color: white;
 }
+
 html {
     font-size: 14px;
 }
+
 .disabled {
     cursor: default;
     background-color: #e9ecef !important;
@@ -71,6 +78,7 @@ body {
 .bg-primary {
     background-color: #1f4963 !important;
 }
+
 .add-button {
     width: 35px;
     height: 35px;
@@ -79,6 +87,7 @@ body {
     color: green;
     border-radius: 50%;
 }
+
 .add-button-table {
     width: 25px;
     height: 25px;
@@ -86,6 +95,7 @@ body {
     padding: 0;
     border: 0;
 }
+
 .text-primary {
     color: #1f4963 !important;
 }
@@ -119,6 +129,7 @@ body {
 .valid {
     outline: 1px solid #0080189c;
 }
+
 .navbar-nav .dropdown-menu {
     background-color: #1f4963;
 }
@@ -133,9 +144,11 @@ body {
 .nav-link:hover, .nav-link:hover {
     color: black !important;
 }
-.icon{
-    font-size:12pt
+
+.icon {
+    font-size: 12pt
 }
+
 .box-shadow {
     box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
 }
@@ -172,7 +185,7 @@ body {
 
 button:disabled {
     opacity: .4;
-    cursor:not-allowed;
+    cursor: not-allowed;
 }
 
 .paging {
@@ -206,7 +219,10 @@ thead, tbody, tfoot, tr, td, th {
     cursor: pointer;
     font-size: 1.5rem;
 }
-
+.table thead {
+    background-color: #1f4963;
+    color: white;
+}
 .table > :not(caption) > * > * {
     padding: 0.1rem !important;
     vertical-align: middle;
@@ -282,10 +298,12 @@ thead, tbody, tfoot, tr, td, th {
     -webkit-animation: fadein 1s linear forwards;
     animation: fadein 1s linear forwards;
 }
+
 .fadeOut {
     -webkit-animation: fadeout 1s linear forwards;
     animation: fadeout 1s linear forwards;
 }
+
 @-webkit-keyframes fadein {
     0% {
         opacity: 0;
@@ -328,32 +346,36 @@ thead, tbody, tfoot, tr, td, th {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    width: 110px;
-    display:block;
+    width: 70px;
+    display: block;
 }
-.bg-tags .more {
-    color: white;
-    background-color: rgb(255 193 7);
-    width: 15px;
-    display: inline-block;
-    border-radius: 50%;
-    font-size: 10px;
-    font-weight: 700;
-}
+
+    .bg-tags .more {
+        color: white;
+        background-color: rgb(255 193 7);
+        width: 15px;
+        display: inline-block;
+        border-radius: 50%;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
 .badge {
     color: white !important;
     margin-right: 5px;
     background-color: #3c093e !important;
 }
-.table tr:hover {
+
+.table tbody > tr:hover {
     background-color: #eef0f0;
 }
 /*      Toast       */
 .blazored-toast-container {
     z-index: 1032 !important;
 }
-.scheme{
-    width:auto;
+
+.scheme {
+    width: auto;
 }
 
 .analysis {
