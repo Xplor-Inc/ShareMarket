@@ -43,8 +43,8 @@ partial class Home
         Grd102050DMA_5DMA = new DataGridViewTextBoxColumn();
         Grd102050DMA_10DMA = new DataGridViewTextBoxColumn();
         Grd102050DMA_20DMA = new DataGridViewTextBoxColumn();
-        Grd102050DMA_LTP = new DataGridViewTextBoxColumn();
-        Grd102050DMA_RSI = new DataGridViewTextBoxColumn();
+        XX_ROE = new DataGridViewTextBoxColumn();
+        XX_PE = new DataGridViewTextBoxColumn();
         GRD5020RankByGroww = new DataGridViewTextBoxColumn();
         ((System.ComponentModel.ISupportInitialize)Grd102050DMA).BeginInit();
         ((System.ComponentModel.ISupportInitialize)GrdAnalysis).BeginInit();
@@ -128,7 +128,7 @@ partial class Home
         Grd102050DMA.AllowUserToAddRows = false;
         Grd102050DMA.AllowUserToDeleteRows = false;
         Grd102050DMA.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-        Grd102050DMA.Columns.AddRange(new DataGridViewColumn[] { Grd102050DMA_Code, Grd102050DMA_5DMA, Grd102050DMA_10DMA, Grd102050DMA_20DMA, Grd102050DMA_LTP, Grd102050DMA_RSI, GRD5020RankByGroww });
+        Grd102050DMA.Columns.AddRange(new DataGridViewColumn[] { Grd102050DMA_Code, Grd102050DMA_5DMA, Grd102050DMA_10DMA, Grd102050DMA_20DMA, XX_ROE, XX_PE, GRD5020RankByGroww });
         Grd102050DMA.Location = new Point(12, 76);
         Grd102050DMA.Name = "Grd102050DMA";
         Grd102050DMA.ReadOnly = true;
@@ -153,10 +153,10 @@ partial class Home
         // GrdAnalysis
         // 
         GrdAnalysis.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-        GrdAnalysis.Location = new Point(1139, 46);
+        GrdAnalysis.Location = new Point(1139, 76);
         GrdAnalysis.Name = "GrdAnalysis";
         GrdAnalysis.RowHeadersWidth = 51;
-        GrdAnalysis.Size = new Size(611, 693);
+        GrdAnalysis.Size = new Size(611, 663);
         GrdAnalysis.TabIndex = 12;
         // 
         // button2
@@ -196,8 +196,8 @@ partial class Home
         // 
         // Grd102050DMA_5DMA
         // 
-        Grd102050DMA_5DMA.DataPropertyName = "DMA5";
-        Grd102050DMA_5DMA.HeaderText = "5DMA";
+        Grd102050DMA_5DMA.DataPropertyName = "LTP";
+        Grd102050DMA_5DMA.HeaderText = "LTP";
         Grd102050DMA_5DMA.MinimumWidth = 6;
         Grd102050DMA_5DMA.Name = "Grd102050DMA_5DMA";
         Grd102050DMA_5DMA.ReadOnly = true;
@@ -205,8 +205,8 @@ partial class Home
         // 
         // Grd102050DMA_10DMA
         // 
-        Grd102050DMA_10DMA.DataPropertyName = "DMA10";
-        Grd102050DMA_10DMA.HeaderText = "10 DMA";
+        Grd102050DMA_10DMA.DataPropertyName = "LTPDate";
+        Grd102050DMA_10DMA.HeaderText = "LTP Date";
         Grd102050DMA_10DMA.MinimumWidth = 6;
         Grd102050DMA_10DMA.Name = "Grd102050DMA_10DMA";
         Grd102050DMA_10DMA.ReadOnly = true;
@@ -214,30 +214,30 @@ partial class Home
         // 
         // Grd102050DMA_20DMA
         // 
-        Grd102050DMA_20DMA.DataPropertyName = "DMA20";
-        Grd102050DMA_20DMA.HeaderText = "20DMA";
+        Grd102050DMA_20DMA.DataPropertyName = "RSI";
+        Grd102050DMA_20DMA.HeaderText = "RSI";
         Grd102050DMA_20DMA.MinimumWidth = 6;
         Grd102050DMA_20DMA.Name = "Grd102050DMA_20DMA";
         Grd102050DMA_20DMA.ReadOnly = true;
         Grd102050DMA_20DMA.Width = 125;
         // 
-        // Grd102050DMA_LTP
+        // XX_ROE
         // 
-        Grd102050DMA_LTP.DataPropertyName = "LTP";
-        Grd102050DMA_LTP.HeaderText = "LTP";
-        Grd102050DMA_LTP.MinimumWidth = 6;
-        Grd102050DMA_LTP.Name = "Grd102050DMA_LTP";
-        Grd102050DMA_LTP.ReadOnly = true;
-        Grd102050DMA_LTP.Width = 125;
+        XX_ROE.DataPropertyName = "ROE";
+        XX_ROE.HeaderText = "ROE";
+        XX_ROE.MinimumWidth = 6;
+        XX_ROE.Name = "XX_ROE";
+        XX_ROE.ReadOnly = true;
+        XX_ROE.Width = 125;
         // 
-        // Grd102050DMA_RSI
+        // XX_PE
         // 
-        Grd102050DMA_RSI.DataPropertyName = "RSI14EMADiff";
-        Grd102050DMA_RSI.HeaderText = "RSI";
-        Grd102050DMA_RSI.MinimumWidth = 6;
-        Grd102050DMA_RSI.Name = "Grd102050DMA_RSI";
-        Grd102050DMA_RSI.ReadOnly = true;
-        Grd102050DMA_RSI.Width = 125;
+        XX_PE.DataPropertyName = "PE";
+        XX_PE.HeaderText = "PE";
+        XX_PE.MinimumWidth = 6;
+        XX_PE.Name = "XX_PE";
+        XX_PE.ReadOnly = true;
+        XX_PE.Width = 125;
         // 
         // GRD5020RankByGroww
         // 
@@ -293,7 +293,7 @@ partial class Home
     private DataGridViewTextBoxColumn Grd102050DMA_5DMA;
     private DataGridViewTextBoxColumn Grd102050DMA_10DMA;
     private DataGridViewTextBoxColumn Grd102050DMA_20DMA;
-    private DataGridViewTextBoxColumn Grd102050DMA_LTP;
-    private DataGridViewTextBoxColumn Grd102050DMA_RSI;
+    private DataGridViewTextBoxColumn XX_ROE;
+    private DataGridViewTextBoxColumn XX_PE;
     private DataGridViewTextBoxColumn GRD5020RankByGroww;
 }

@@ -4,5 +4,12 @@ public enum SellAction
 {
     Manuall,
     Stoploss,
-    Target
+    Target,
+    All
+}
+
+public enum BuyStratergy
+{
+    RSIBelow35,
+    RSI14EMADiffLess1
 }

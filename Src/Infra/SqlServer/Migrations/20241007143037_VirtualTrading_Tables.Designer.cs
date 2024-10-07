@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShareMarket.SqlServer;
 
@@ -11,9 +12,11 @@ using ShareMarket.SqlServer;
 namespace ShareMarket.WinApp.Migrations
 {
     [DbContext(typeof(ShareMarketContext))]
-    partial class ShareMarketContextModelSnapshot : ModelSnapshot
+    [Migration("20241007143037_VirtualTrading_Tables")]
+    partial class VirtualTrading_Tables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

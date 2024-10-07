@@ -1,4 +1,5 @@
 ﻿@page "/virtual-trade";
+@inherits ComponentBaseClass
 
 @using Blazorise.Components;
 @using Blazorise;
@@ -10,59 +11,52 @@
 @inject NavigationManager NavManager
 @inject IJSRuntime JsRuntime
 @inject IRepositoryConductor<EquityPriceHistory> HistoryRepo;
+@inject IRepositoryConductor<VirtualTrade> TradeRepo;
 
 
 @code {
+    protected const string RSI35 = "#433878";
+    protected const string RSI35EMA = "#629584";
 
     public List<VirtualTrade> Trades { get; set; } = [];
+    DateOnly dateOnly = new DateOnly(2024, 10, 1);
 
     protected override async Task OnInitializedAsync()
     {
         var start = new DateOnly(2024, 10, 1);
 
-        var dataX = await HistoryRepo.FindAll(x => x.Date >= start && x.RSI14EMADiff < -1 
-                                                && x.Equity.PE < 600 && x.Equity.ROE >= 15 && x.Equity.RankByGroww >= 0 && x.Close < 5000)
+        Trades = await TradeRepo.FindAll(x => x.DeletedOn == null, orderBy: o => o.OrderBy("BuyDate"))
                                      .ResultObject.ToListAsync();
-        dataX.ForEach(e =>
-        {
-            if (!Trades.Any(a => a.Code == e.Code))
-                Trades.Add(new VirtualTrade
-                {
-                    BuyDate = e.Date,
-                    BuyRate = e.Close,
-                    Code = e.Code,
-                    Quantity = (int)(10000 / e.Close) + 1,
-                });
-        });
+
         await base.OnInitializedAsync();
     }
 
-    protected async void LTPUpdate()
+    protected async Task LTPUpdate()
     {
+        IsLoading = true;
         foreach (var item in Trades)
         {
             var resp = await GrowwService.GetLTPPrice(item.Code);
             if (!resp.HasErrors && resp.ResultObject != null)
             {
                 item.LTP = resp.ResultObject.Ltp;
+                item.BuyValue = item.Quantity * item.BuyRate;
             }
         }
-        StateHasChanged();
-    }
-
-    protected async Task SellTrade(VirtualTrade trade)
-    {
-        if (true)
+        IsLoading = false;
+        var updateResult = await TradeRepo.UpdateAsync(Trades, SystemConstant.SystemUserId);
+        if (updateResult.HasErrors)
         {
-            
+
         }
+        StateHasChanged();
     }
 
     protected string RowColor(VirtualTrade trade)
     {
         var currentState = ((trade.LTP - trade.BuyRate) / trade.BuyRate * 100).ToFixed();
         if (currentState > 3) return "green";
-        if (currentState < -3) return "red";
+        if (currentState < -5) return "red";
         if (currentState < 0) return "#edaaaa"; // Light red
         if (currentState > 0) return "#b9e4b9"; //Light Green
         return "gray";
@@ -71,15 +65,37 @@
 
 
 <PageTitle>Virtual Trade</PageTitle>
+<Loader IsLoading="IsLoading" />
 
+
+<div class="row">
+    <div class="col-3 text-start">
+        <Button Class="btn btn-warning">
+            Used Cap : <strong>@Trades.Where(x => x.SellDate is null).Sum(s => s.BuyValue).ToFixed(0)</strong>
+        </Button>
+    </div>
+    <div class="col-3 text-center">
+        <Button Class="btn btn-success">
+            Released PL : <strong> @Trades.Where(x => x.SellDate is not null).Sum(s => s.ReleasedPL).ToFixed(0)</strong>
+        </Button>
+    </div>
+    <div class="col-3 text-center">
+        <Button Class="btn btn-danger">
+            Un Released PL : <strong> @Trades.Where(x => x.SellDate is null).Sum(s => (s.LTP - s.BuyRate) * s.Quantity).ToFixed(0)</strong>
+        </Button>
+    </div>
+    <div class="col-3 text-end">
+        <Button Class="btn btn-warning" Clicked="LTPUpdate">Refresh LTP</Button>
+    </div>
+</div>
 @if (Trades.Count > 0)
 {
-    <button class="btn btn-success" @onclick=LTPUpdate>Refresh</button>
     <div class="table-responsive">
         <table class="table">
             <thead>
                 <tr>
                     <th>SR</th>
+                    <th>Stratergy</th>
                     <th>Code</th>
                     <th>Buy Rate</th>
                     <th>Buy Date</th>
@@ -95,25 +111,24 @@
                 @for (int i = 0; i < Trades.Count; i++)
                 {
                     var row = Trades[i];
-                    string red = "#ff0000";
-                    string green = "#008000";
-                    <tr style="background-color:@RowColor(row)">
+                    <tr style="color:@RowColor(row)">
                         <td>@(i + 1)</td>
+                        <td>
+                            <span class="bg-tags" style="color:@(row.Stratergy == BuyStratergy.RSI14EMADiffLess1 ? RSI35 : RSI35EMA);
+                                    background-color:@(row.Stratergy == BuyStratergy.RSI14EMADiffLess1 ? RSI35.HexToRGBA() : RSI35EMA.HexToRGBA());
+                                    width:fit-content">
+                                @row.Stratergy
+                            </span>
+                        </td>
                         <td title="@row.Name">@row.Code</td>
                         <td>@row.BuyRate</td>
                         <td>@row.BuyDate.ToString("dd-MMM-yy")</td>
                         <td>@row.LTP</td>
-                        <td>@(row.BuyRate + (row.BuyRate * 5 / 100))</td>
-                       @*  <td>
-                            <span class="bg-tags" style="color:@(row.DChange > 0 ? green : red);
-                        background-color:@(row.DChange > 0 ? green.HexToRGBA() : red.HexToRGBA())">
-                                @row.DChange.ToString("#.##")
-                            </span>
-                        </td> *@
+                        <td>@row.Target</td>
                         <td>@row.Quantity</td>
                         <td>@row.BuyValue</td>
-                        <td>@(row.BuyRate - (row.BuyRate * 7 / 100))</td>
-                        <td>@(((row.LTP - row.BuyRate)/row.BuyRate *100).ToFixed())</td>
+                        <td>@row.StopLoss</td>
+                        <td>@(((row.LTP - row.BuyRate) / row.BuyRate * 100).ToFixed())</td>
                     </tr>
                 }
             </tbody>

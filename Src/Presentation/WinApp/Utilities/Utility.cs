@@ -305,7 +305,7 @@ public class Utility
         //                                    && x.DMA5 > x.LTP && x.DMA10 < x.LTP && x.DMA20 < x.LTP && x.RSI14EMADiff < -1)
         //                                    .OrderByDescending(o => o.RankByGroww).ToListAsync();
 
-        var equities = await DbContext.EquityStocks.Where(x => x.RankByGroww >= 50 && x.RSI14EMADiff < -1 && x.ROE >= 15 && x.PE < 60)
+        var equities = await DbContext.EquityStocks.Where(x => x.RankByGroww >= 75 && x.RSI <= 35 && x.ROE >= 15 && x.PE < 60 && x.LTP < 5000)
                                            .OrderByDescending(o => o.RankByGroww).ToListAsync();
         return equities;
     }
@@ -328,47 +328,5 @@ public class Utility
         }
 
         return lastDayOfMonth;
-    }
-    public static void CreateExcelFromList(List<TradeBook> people, string filePath)
-    {
-        using var workbook = new XLWorkbook();
-
-        var worksheet = workbook.Worksheets.Add("Data");
-        worksheet.Cell(1, 1).Value = "Name";
-        worksheet.Cell(1, 2).Value = "Code";
-        worksheet.Cell(1, 3).Value = "BuyDate";
-        worksheet.Cell(1, 4).Value = "BuyRate";
-        worksheet.Cell(1, 5).Value = "LTP";
-        worksheet.Cell(1, 6).Value = "SellDate";
-        worksheet.Cell(1, 7).Value = "Target";
-        worksheet.Cell(1, 8).Value = "High";
-        worksheet.Cell(1, 9).Value = "Diff";
-        worksheet.Cell(1, 10).Value = "Holding";
-        worksheet.Cell(1, 11).Value = "Rank";
-        worksheet.Cell(1, 12).Value = "StopLoss";
-        worksheet.Cell(1, 13).Value = "SameDay";
-        worksheet.Cell(1, 14).Value = "CapitalUsed";
-
-        int row = 2;
-        foreach (var person in people)
-        {
-            worksheet.Cell(row, 1).Value = person.Name;
-            worksheet.Cell(row, 2).Value = person.Code;
-            worksheet.Cell(row, 3).Value = person.BuyDate.ToShortDateString();
-            worksheet.Cell(row, 4).Value = person.BuyRate;
-            worksheet.Cell(row, 5).Value = person.LTP;
-            worksheet.Cell(row, 6).Value = person.SellDate?.ToShortDateString();
-            worksheet.Cell(row, 7).Value = person.Target;
-            worksheet.Cell(row, 8).Value = person.High;
-            worksheet.Cell(row, 9).Value = person.Diff;
-            worksheet.Cell(row, 10).Value = person.Holding;
-            worksheet.Cell(row, 11).Value = person.Rank;
-            worksheet.Cell(row, 12).Value = person.StopLoss;
-            worksheet.Cell(row, 14).Value = person.CapitalUsed;
-            row++;
-        }
-
-        // Save the workbook to the file path
-        workbook.SaveAs(filePath);
     }
 }

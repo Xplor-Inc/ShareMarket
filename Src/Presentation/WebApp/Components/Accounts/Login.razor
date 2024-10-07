@@ -89,7 +89,7 @@
         var userPrincipal = new ClaimsPrincipal(new ClaimsIdentity(claims, "CA"));
         var properties = GetProperties();
         await HttpContext.SignInAsync("CA", userPrincipal, properties);
-        if (ReturnUrl is null) ReturnUrl = "/dashboard";
+        if (ReturnUrl is null) ReturnUrl = "/equitymarket";
         RedirectManager.RedirectTo(ReturnUrl);
     }
 

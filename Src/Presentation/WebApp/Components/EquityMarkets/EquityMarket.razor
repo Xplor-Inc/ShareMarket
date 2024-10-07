@@ -1,30 +1,46 @@
-﻿@page "/dashboard";
+﻿@page "/equitymarket";
+@inherits ComponentBaseClass
 
 @using Blazorise.Components;
 @using Blazorise;
 @using ShareMarket.Core.Entities.Equities
+@using ShareMarket.Core.Entities.Tradings
 @using ShareMarket.Core.Services
 
 @attribute [Authorize]
 @inject NavigationManager NavManager
 @inject IJSRuntime JsRuntime
 @inject IRepositoryConductor<EquityStock> EquityStocksRepo;
+@inject IRepositoryConductor<VirtualTrade> TradeRepo;
+@inject IRepositoryConductor<EquityPriceHistory> HistoryRepo;
 
+<Loader IsLoading="IsLoading" />
+<PageTitle>Trading</PageTitle>
 <h3>
     Trade Prediction Book
-        @if (RSILess1.Count > 0)
-        {
+    @if (TodaysTrades.Count > 0)
+    {
         <span style="font-size:14px; color:#ff1f2e">
-            (Buy Date at closing of @(RSILess1.FirstOrDefault()?.LTPDate)
-            or opening of @(RSILess1.FirstOrDefault()?.LTPDate.AddDays(1)))
+            (Buy Date at closing of @Date)
+            or opening of @Date.AddDays(1)))
         </span>
     }
     <span style="font-size:14px; color:green">(Target 5%)</span>
     <span style="font-size:14px; color:red">(SL 7%)</span>
 </h3>
-@if (RSILess1.Count > 0)
+<div class="row"> 
+    <div class="col-1">
+        <Button Class="@(Stratergy == BuyStratergy.RSIBelow35 ? "btn btn-primary active":"btn btn-success ")" Clicked="()=>GetDataAsync(BuyStratergy.RSIBelow35)">RSI Below 35</Button>
+    </div> 
+    <div class="col-2">
+        <Button Class="@(Stratergy == BuyStratergy.RSI14EMADiffLess1 ? "btn btn-primary active":"btn btn-success ")" Clicked="()=>GetDataAsync(BuyStratergy.RSI14EMADiffLess1)">RSI 14EMA Diff -1</Button>
+    </div>
+    <div class="col-2 offset-7 text-end">
+        <Button Class="btn btn-warning" Clicked="LTPUpdate">Refresh LTP</Button>
+    </div>
+</div>
+@if (TodaysTrades.Count > 0)
 {
-    <button class="btn btn-success" @onclick=LTPUpdate>Refresh</button>
     <div class="table-responsive">
         <table class="table">
             <thead>
@@ -35,6 +51,7 @@
                     <th>LTP</th>
                     <th>Target</th>
                     <th>SL</th>
+                    <th>RSI</th>
                     <th>5DMA</th>
                     <th>10DMA</th>
                     <th>20DMA</th>
@@ -42,12 +59,13 @@
                     <th>100DMA</th>
                     <th>RSI Diff</th>
                     <th>Groww Rank</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
-                @for (int i = 0; i < RSILess1.Count; i++)
+                @for (int i = 0; i < TodaysTrades.Count; i++)
                 {
-                    var row = RSILess1[i];
+                    var row = TodaysTrades[i];
                     string red = "#ff0000";
                     string green = "#008000";
                     <tr>
@@ -59,10 +77,11 @@
                         background-color:@(row.PChange > 0 ? green.HexToRGBA() : red.HexToRGBA())">
                                 @row.PChange.ToString("#.##")
                             </span>
-                            
+
                         </td>
                         <td>@(row.LTP + (row.LTP * 5 / 100))</td>
                         <td>@(row.LTP - (row.LTP * 7 / 100))</td>
+                        <td>@row.RSI</td>
                         <td>
                             <span class="bg-tags" style="color:@(row.DMA5 > row.LTP ? green : red);
                         background-color:@(row.DMA5 > row.LTP ? green.HexToRGBA() : red.HexToRGBA())">
@@ -95,35 +114,19 @@
                         </td>
                         <td>@row.RSI14EMADiff</td>
                         <td>@row.RankByGroww</td>
+                        <td>
+                            @if (row.IsETFSec)
+                            {
+                                <span>Brought</span>
+                            }
+                            else
+                            {
+                                <Button Clicked="()=>BuyTrade(row)" Class="btn btn-warning">Buy</Button>
+                            }
+                        </td>
                     </tr>
                 }
             </tbody>
         </table>
     </div>
-}
-
-
-@code {
-    public List<EquityStock> RSILess1 { get; set; } = [];
-
-    protected async override Task OnInitializedAsync()
-    {
-        RSILess1 = await EquityStocksRepo.FindAll(x => x.RSI14EMADiff < -1 && x.ROE >= 15 && x.PE < 60 && x.RankByGroww >= 50, orderBy: e => e.OrderBy("RankByGroww", "DESC"))
-                                                    .ResultObject.ToListAsync();
-        await base.OnInitializedAsync();
-    }
-
-    protected async void LTPUpdate()
-    {
-        GrowwService groww = new GrowwService();
-        foreach (var item in RSILess1)
-        {
-            var resp = await GrowwService.GetLTPPrice(item.Code);
-            if (!resp.HasErrors && resp.ResultObject != null)
-              {
-                item.LTP = resp.ResultObject.Ltp;
-                item.PChange = resp.ResultObject.DayChangePerc;
-              }
-        }
-    }
 }

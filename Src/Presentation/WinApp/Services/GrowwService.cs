@@ -53,7 +53,7 @@ public class GrowwService
                 var table =doc.GetElementbyId("testTable2");
                 if (table == null) 
                 {
-                    EquityHistorySyncLog obj = new EquityHistorySyncLog
+                    EquityHistorySyncLog obj = new()
                     {
                         Name = stock.Name,
                         Code = stock.Code,
