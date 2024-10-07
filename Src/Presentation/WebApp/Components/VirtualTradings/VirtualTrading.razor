@@ -71,17 +71,17 @@
 <div class="row">
     <div class="col-3 text-start">
         <Button Class="btn btn-warning">
-            Used Cap : <strong>@Trades.Where(x => x.SellDate is null).Sum(s => s.BuyValue).ToFixed(0)</strong>
+            Used Cap : <strong>@Trades.Where(x => x.SellDate is null).Sum(s => s.BuyValue).ToCString(0)</strong>
         </Button>
     </div>
     <div class="col-3 text-center">
         <Button Class="btn btn-success">
-            Released PL : <strong> @Trades.Where(x => x.SellDate is not null).Sum(s => s.ReleasedPL).ToFixed(0)</strong>
+            Released PL : <strong> @Trades.Where(x => x.SellDate is not null).Sum(s => s.ReleasedPL).ToCString(0)</strong>
         </Button>
     </div>
     <div class="col-3 text-center">
         <Button Class="btn btn-danger">
-            Un Released PL : <strong> @Trades.Where(x => x.SellDate is null).Sum(s => (s.LTP - s.BuyRate) * s.Quantity).ToFixed(0)</strong>
+            Un Released PL : <strong> @Trades.Where(x => x.SellDate is null).Sum(s => (s.LTP - s.BuyRate) * s.Quantity).ToCString(0)</strong>
         </Button>
     </div>
     <div class="col-3 text-end">
