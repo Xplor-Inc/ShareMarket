@@ -1,7 +1,5 @@
 ﻿using ClosedXML.Excel;
-using DocumentFormat.OpenXml.Spreadsheet;
 using ShareMarket.Core.Entities.Tradings;
-using ShareMarket.Core.Models.Services.Groww;
 
 namespace ShareMarket.WinApp.Utilities;
 

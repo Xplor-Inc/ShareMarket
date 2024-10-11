@@ -1,18 +1,14 @@
-﻿using HtmlAgilityPack;
-using Microsoft.EntityFrameworkCore;
-using ShareMarket.Core.Entities.Equities;
-using ShareMarket.Core.Extensions;
+﻿using ShareMarket.Core.Extensions;
 using ShareMarket.Core.Models.Results;
 using ShareMarket.Core.Models.Services.Groww;
-using System;
 using System.Net;
 
 namespace ShareMarket.Core.Services;
 
-public class GrowwService
+public class GrowwService : IGrowwService
 {
-    readonly static HttpClient Client = new() { BaseAddress = new Uri("https://groww.in/") };
-    public async static Task<Result<GrowwStockModel?>> GetLTPPrice(string code)
+    static HttpClient Client = new() { BaseAddress = new Uri("https://groww.in/") };
+    public async Task<Result<GrowwStockModel?>> GetLTPPrice(string code)
     {
         Result<GrowwStockModel?> result = new(null);
         try
@@ -30,7 +26,7 @@ public class GrowwService
         }
         catch (Exception ex)
         {
-            result.AddError($"Exception at SyncFundamentalEquityPandit: {ex.Message}");
+            result.AddError($"Exception at SyncFundamentalEquityPandit: {code} {ex.Message}");
             return result;
         }
         return result;

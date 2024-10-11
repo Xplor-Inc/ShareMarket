@@ -10,18 +10,46 @@ namespace ShareMarket.WinApp.Services;
 public class GrowwService
 {
     readonly static HttpClient Client = new() { BaseAddress = new Uri("https://groww.in/") };
-    public async static Task<GrowwStockModel?> GetStockPrice(string code)
+    public async static Task<GrowwStockModel?> GetStockPrice(EquityStock stock)
     {
         try
         {
-            var response = await Client.GetAsync($"v1/api/stocks_data/v1/accord_points/exchange/NSE/segment/CASH/latest_prices_ohlc/{code}");
+            var response = await Client.GetAsync($"v1/api/stocks_data/v1/accord_points/exchange/NSE/segment/CASH/latest_prices_ohlc/{stock.Code}");
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 return await response.Content.ReadAsAsync<GrowwStockModel>();
             }
+            else
+            {
+                var db = new ShareMarketContext();
+
+                var er = await response.Content.ReadAsStringAsync();
+                EquityHistorySyncLog obj = new ()
+                {
+                    Name = stock.Name,
+                    Code = stock.Code,
+                    Provider = $"https://groww.in/v1/api/stocks_data/v1/accord_points/exchange/NSE/segment/CASH/latest_prices_ohlc/{stock.Code}",
+                    ErrorMessage = $"API Error: {er}",
+                    CreatedOn = DateTime.Now
+                };
+                db.Add(obj);
+                db.SaveChanges();
+            }
         }
         catch (Exception ex)
         {
+            var db = new ShareMarketContext();
+
+            EquityHistorySyncLog obj = new()
+            {
+                Name = stock.Name,
+                Code = stock.Code,
+                Provider = $"https://groww.in/v1/api/stocks_data/v1/accord_points/exchange/NSE/segment/CASH/latest_prices_ohlc/{stock.Code}",
+                ErrorMessage = $"testTable2 not found in response string, {ex.Message}",
+                CreatedOn = DateTime.Now
+            };
+            db.Add(obj);
+            db.SaveChanges();
         }
        
         return null;
@@ -98,7 +126,7 @@ public class GrowwService
             else
             {
                 var er = await response.Content.ReadAsStringAsync();
-                EquityHistorySyncLog obj = new EquityHistorySyncLog
+                EquityHistorySyncLog obj = new ()
                 {
                     Name = stock.Name,
                     Code = stock.Code,
@@ -113,7 +141,7 @@ public class GrowwService
         }
         catch (Exception ex)
         {
-            EquityHistorySyncLog obj = new EquityHistorySyncLog
+            EquityHistorySyncLog obj = new ()
             {
                 Name = stock.Name,
                 Code = stock.Code,
@@ -218,7 +246,7 @@ public class GrowwService
         }
         catch (Exception ex)
         {
-            EquityHistorySyncLog obj = new EquityHistorySyncLog
+            EquityHistorySyncLog obj = new ()
             {
                 Name = stock.Name,
                 Code = stock.Code,

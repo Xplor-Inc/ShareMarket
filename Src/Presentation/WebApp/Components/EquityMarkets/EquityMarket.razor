@@ -9,10 +9,10 @@
 
 @attribute [Authorize]
 @inject NavigationManager NavManager
-@inject IJSRuntime JsRuntime
 @inject IRepositoryConductor<EquityStock> EquityStocksRepo;
 @inject IRepositoryConductor<VirtualTrade> TradeRepo;
 @inject IRepositoryConductor<EquityPriceHistory> HistoryRepo;
+@inject IGrowwService GrowwService;
 
 <Loader IsLoading="IsLoading" />
 <PageTitle>Trading</PageTitle>
@@ -41,6 +41,9 @@
 </div>
 @if (TodaysTrades.Count > 0)
 {
+    string red = "#ff0000";
+    string green = "#008000";
+
     <div class="table-responsive">
         <table class="table">
             <thead>
@@ -66,8 +69,6 @@
                 @for (int i = 0; i < TodaysTrades.Count; i++)
                 {
                     var row = TodaysTrades[i];
-                    string red = "#ff0000";
-                    string green = "#008000";
                     <tr>
                         <td>@(i + 1)</td>
                         <td title="@row.Name">@row.Code</td>
@@ -115,13 +116,13 @@
                         <td>@row.RSI14EMADiff</td>
                         <td>@row.RankByGroww</td>
                         <td>
-                            @if (row.IsETFSec)
+                            @if (row.BuyAlready)
                             {
-                                <span>Brought</span>
+                                <Button Clicked="()=>BuyTrade(row)" Class="btn btn-warning">Bought</Button>
                             }
                             else
                             {
-                                <Button Clicked="()=>BuyTrade(row)" Class="btn btn-warning">Buy</Button>
+                                <Button Clicked="()=>BuyTrade(row)" Class="btn btn-success">Buy</Button>
                             }
                         </td>
                     </tr>

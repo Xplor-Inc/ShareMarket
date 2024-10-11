@@ -48,8 +48,5 @@ public static class IServiceCollectionExtension
     {
         var emailSection = configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>() ?? throw new NullReferenceException("Provide EmailConfiguration section in AppSettings.json");
         services.AddSingleton((sp) => emailSection);
-
-        var template = configuration.GetSection("EmailTemplates").Get<EmailTemplate>() ?? throw new NullReferenceException("Provide EmailTemplates section in AppSettings.json");
-        services.AddSingleton((sp) => template);
     }
 }

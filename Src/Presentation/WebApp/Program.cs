@@ -49,7 +49,7 @@ builder.Services.AddHangfire(configuration => configuration
         UseRecommendedIsolationLevel = true,
         DisableGlobalLocks = true
     }));
-builder.Services.AddHangfireServer();
+builder.Services.AddHangfireServer(z => { z.WorkerCount = Environment.ProcessorCount * 2; });
 
 // Custom Services
 builder.Services.AddEndpointsApiExplorer();
@@ -94,9 +94,9 @@ var version = builder.Configuration.GetSection("Version").Value;
 app.Use(async (context, next) =>
 {
     context.Response.Headers.Append("App-Version", version);
-    //context.Response.Headers.Append("X-Frame-Options", "sameorigin");
-    //context.Response.Headers.Append("X-Xss-Protection", "1; mode=block");
-    //context.Response.Headers.Append("Referrer-Policy", "no-referrer");
+    context.Response.Headers.Append("X-Frame-Options", "sameorigin");
+    context.Response.Headers.Append("X-Xss-Protection", "1; mode=block");
+    context.Response.Headers.Append("Referrer-Policy", "no-referrer");
     context.Response.Headers.Append("App-Machine", Environment.MachineName);
     await next();
 });

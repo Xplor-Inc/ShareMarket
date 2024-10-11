@@ -1,12 +1,13 @@
 ﻿using ShareMarket.Core.Entities.Equities;
 using ShareMarket.Core.Entities.Tradings;
+using ShareMarket.Core.Models.Dtos.Equities;
 using ShareMarket.Core.Services;
 
 namespace ShareMarket.WebApp.Components.EquityMarkets;
 
 public partial class EquityMarket
 {
-    public List<EquityStock> TodaysTrades { get; set; } = [];
+    public List<EquityStockDto> TodaysTrades { get; set; } = [];
     protected BuyStratergy Stratergy { get; set; }
     protected DateOnly Date = DateOnly.FromDateTime(DateTime.Now);
     protected async override Task OnInitializedAsync()
@@ -41,9 +42,13 @@ public partial class EquityMarket
             filter = filter.AndAlso(e => e.RSI14EMADiff < -1);
 
         var equityResult = EquityStocksRepo.FindAll(filter, orderBy: e => e.OrderBy("RankByGroww", "DESC"));
-        TodaysTrades = await equityResult.ResultObject.ToListAsync();
+        var trades = await equityResult.ResultObject.ToListAsync();
+        TodaysTrades = Mapper.Map<List<EquityStockDto>>(trades);
+
+        var boughtStocks = await TradeRepo.FindAll(x=>x.SellDate == null).ResultObject.Select(x => x.Code).ToListAsync();
+        TodaysTrades.ForEach(e => e.BuyAlready = boughtStocks.Contains(e.Code));
     }
-    protected async Task BuyTrade(EquityStock equity)
+    protected async Task BuyTrade(EquityStockDto equity)
     {
         IsLoading = true;
         var tradeTaken = await TradeRepo.FindAll(x => x.Code == equity.Code && !x.SellDate.HasValue).ResultObject.FirstOrDefaultAsync();
@@ -51,7 +56,7 @@ public partial class EquityMarket
         {
             await NotificationService.Error($"Error : Trade is already available taken on {tradeTaken.BuyDate:dd-MMM-yyyy} with {tradeTaken.Stratergy}", "Error");
             IsLoading = false;
-            equity.IsETFSec = true;
+            equity.BuyAlready = true;
             return;
         }
 
@@ -80,6 +85,6 @@ public partial class EquityMarket
         }
         await NotificationService.Success($"Success : Trade added to virual book successfully", "Success");
         IsLoading = false;
-        equity.IsETFSec = true;
+        equity.BuyAlready = true;
     }
 }

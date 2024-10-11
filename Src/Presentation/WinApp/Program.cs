@@ -5,12 +5,11 @@ namespace ShareMarket.WinApp;
 
 internal static class Program
 {
-    public static ShareMarketContext DbContext { get; set; } = new();
 
     [STAThread]
     static void Main()
     {
-        DbContext.Database.Migrate();
+        new ShareMarketContext().Database.Migrate();
         ApplicationConfiguration.Initialize();
         Application.Run(new Home());
     }

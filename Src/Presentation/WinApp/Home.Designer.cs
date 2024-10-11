@@ -135,7 +135,6 @@ partial class Home
         Grd102050DMA.RowHeadersWidth = 51;
         Grd102050DMA.Size = new Size(1007, 663);
         Grd102050DMA.TabIndex = 10;
-        Grd102050DMA.RowValidating += Grd102050DMA_RowValidating;
         // 
         // btnFundamentals
         // 

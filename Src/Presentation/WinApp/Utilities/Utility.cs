@@ -108,15 +108,11 @@ public class Utility
                 await DbContext.SaveChangesAsync();
             }
         }
-
-        //await RSICalculation(14, histories.First().Code);
-        //await RSI_X_EMA(14, histories.First().Code);
-        //await DMACalculation(histories.First().Code);
     }
-    public static async Task RSI_X_EMA(int days, string code)
+ 
+    public static async Task RSI_X_EMA( string code)
     {
-        if (days != 14)
-            throw new Exception($"RSI will be calculated for only 14 days intervel. {days} not allowed! ");
+        int days = 14;
         var stock = await DbContext.EquityStocks.Where(x => x.IsActive && x.Code == code).FirstOrDefaultAsync();
         if (stock is null) return;
         var histories = await DbContext.EquityPriceHistories.Where(x => x.Code == code).OrderBy(o => o.Date).ToListAsync();
@@ -148,8 +144,10 @@ public class Utility
         DbContext.EquityStocks.UpdateRange(stock);
         await DbContext.SaveChangesAsync();
     }
-    public static async Task RSICalculation(int days, string code)
+  
+    public static async Task RSICalculation(string code)
     {
+        int days = 14;
         var stock = await DbContext.EquityStocks.Where(x => x.IsActive && x.Code == code).FirstOrDefaultAsync();
         if (stock is null) return;
         var histories = await DbContext.EquityPriceHistories.Where(x => x.Code == code).OrderBy(o => o.Date).ToListAsync();
@@ -192,23 +190,31 @@ public class Utility
                 }
             }
         }
-        var yH = histories.Where(x => x.Date >= lastYear).OrderByDescending(O => O.High).First();
-        var yL = histories.Where(x => x.Date >= lastYear).OrderBy(O => O.Low).First();
+        var yH = histories.Where(x => x.Date >= lastYear).OrderByDescending(O => O.High).FirstOrDefault();
+        var yL = histories.Where(x => x.Date >= lastYear).OrderBy(O => O.Low).FirstOrDefault();
         var last = histories.Last();
         stock.RSI           = last.RSI;
         stock.DayHigh       = last.High;
         stock.DayLow        = last.Low;
-        stock.YearHigh      = yH.High;
-        stock.YearHighOn    = yH.Date;
-        stock.YearLow       = yL.Low;
-        stock.YearLowOn     = yL.Date;
         stock.LTP           = last.Close;
-        stock.IsRaising     = stock.YearLowOn > stock.YearHighOn;
+        if(yH is not null)
+        {
+            stock.YearHigh = yH.High;
+            stock.YearHighOn = yH.Date;
+        }
+        if (yL is not null)
+        {
+            stock.YearLow = yL.Low;
+            stock.YearLowOn = yL.Date;
+        }
+        if(yH is not null && yL is not null) 
+            stock.IsRaising = stock.YearLowOn > stock.YearHighOn;
 
         DbContext.EquityPriceHistories.UpdateRange(histories);
         DbContext.EquityStocks.Update(stock);
         await DbContext.SaveChangesAsync();
     }
+  
     public static async Task DMACalculation(string code)
     {
         var stock = await DbContext.EquityStocks.Where(x => x.IsActive && x.Code == code).FirstOrDefaultAsync();
@@ -248,11 +254,12 @@ public class Utility
         DbContext.EquityStocks.UpdateRange(stock);
         await DbContext.SaveChangesAsync();
     }
+  
     public static async Task RSIIncrementalAsync(string code)
     {
         var stock = await DbContext.EquityStocks.Where(x => x.IsActive && x.Code == code).FirstOrDefaultAsync();
         if (stock is null) return;
-        var histories = await DbContext.EquityPriceHistories.Where(x => x.Code == code).OrderBy(o => o.Date).ToListAsync();
+        var histories = await DbContext.EquityPriceHistories.Where(x => x.Code == code).OrderByDescending(o => o.Date).Take(2).ToListAsync();
         if (histories.Count == 0) return;
         var last = histories.Last();
         var today = histories.First();
@@ -266,25 +273,26 @@ public class Utility
             today.RS = Math.Round(sum0 / loss0, 2, MidpointRounding.AwayFromZero);
         today.RSI = Math.Round(100 - (100 / (1 + today.RS)), 2, MidpointRounding.AwayFromZero);
 
-        var yH = histories.Where(x => x.Date >= lastYear).OrderByDescending(O => O.High).First();
-        var yL = histories.Where(x => x.Date >= lastYear).OrderBy(O => O.Low).First();
+        //var yH = histories.Where(x => x.Date >= lastYear).OrderByDescending(O => O.High).First();
+        //var yL = histories.Where(x => x.Date >= lastYear).OrderBy(O => O.Low).First();
 
         stock.RSI           = last.RSI;
         stock.DayHigh       = last.High;
         stock.DayLow        = last.Low;
-        stock.YearHigh      = yH.High;
-        stock.YearHighOn    = yH.Date;
-        stock.YearLow       = yL.Low;
-        stock.YearLowOn     = yL.Date;
+        //stock.YearHigh      = yH.High;
+        //stock.YearHighOn    = yH.Date;
+        //stock.YearLow       = yL.Low;
+        //stock.YearLowOn     = yL.Date;
         stock.IsRaising     = stock.YearLowOn > stock.YearHighOn;
         DbContext.EquityPriceHistories.UpdateRange(histories);
         DbContext.EquityStocks.UpdateRange(stock);
         await DbContext.SaveChangesAsync();
 
     }
+  
     public static async Task Rank(Label  label)
     {
-        var holdin = await DbContext.SchemeEquityHoldings.Where(x => x.NatureName == "EQ" && x.Scheme != null && (x.Scheme.GrowwRating == null || x.Scheme.GrowwRating > 2)).AsNoTracking()
+        var holding = await DbContext.SchemeEquityHoldings.Where(x => x.NatureName == "EQ" && x.Scheme != null && (x.Scheme.GrowwRating == null || x.Scheme.GrowwRating > 2)).AsNoTracking()
                                 .Select(s => new { s.SchemeId, s.Code, s.CompanyName }).ToListAsync();
 
         var stocks = await DbContext.EquityStocks.Where(s => s.IsActive).AsNoTracking().ToListAsync();
@@ -293,12 +301,13 @@ public class Utility
         {
             count++;
             label.Text = $"{count}/{stocks.Count}. Rank By Schemes...{stock.Name}";
-            var z = holdin.Count(c => string.Equals(c.Code?.Trim(), stock.Code.Trim()) || string.Equals(c.CompanyName?.Trim(), stock.Name.Trim()));
+            var z = holding.Count(c => string.Equals(c.Code?.Trim(), stock.Code.Trim()) || string.Equals(c.CompanyName?.Trim(), stock.Name.Trim()));
             stock.RankByGroww = z;
             DbContext.Update(stock);
             await DbContext.SaveChangesAsync();
         }
     }
+ 
     public static async Task<List<EquityStock>> Get51020DMA()
     {
         //var equities = await DbContext.EquityStocks.Where(x => x.DMA5 > 0 && x.DMA10 > 0 && x.DMA20 > 0
@@ -309,13 +318,7 @@ public class Utility
                                            .OrderByDescending(o => o.RankByGroww).ToListAsync();
         return equities;
     }
-    public static async Task<List<EquityStock>> Get5_10_20_50DMA()
-    {
-        var equities = await DbContext.EquityStocks.Where(x => x.DMA5 > 0 && x.DMA10 > 0 && x.DMA20 > 0 && x.DMA50 > 0
-                                            && x.DMA5 > x.LTP && x.DMA10 > x.LTP && x.DMA20 < x.LTP && x.DMA50 < x.LTP)
-                                            .OrderByDescending(o => o.RankByGroww).ToListAsync();
-        return equities;
-    }
+  
     public static DateOnly GetLastThursdayOfMonth(int year, int month)
     {
         // Start with the last day of the month
