@@ -7,9 +7,9 @@ namespace ShareMarket.WebApp.Components.EquityMarkets;
 
 public partial class EquityMarket
 {
-    public List<EquityStockDto> TodaysTrades { get; set; } = [];
+    public List<EquityPriceHistoryDto> TodaysTrades { get; set; } = [];
     protected BuyStratergy Stratergy { get; set; }
-    protected DateOnly Date = DateOnly.FromDateTime(DateTime.Now);
+    protected DateOnly Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-3));
     protected async override Task OnInitializedAsync()
     {
         await GetDataAsync(BuyStratergy.RSIBelow35);
@@ -25,8 +25,8 @@ public partial class EquityMarket
             var resp = await GrowwService.GetLTPPrice(item.Code);
             if (!resp.HasErrors && resp.ResultObject != null)
             {
-                item.LTP = resp.ResultObject.Ltp;
-                item.PChange = resp.ResultObject.DayChangePerc;
+                //item.LTP = resp.ResultObject.Ltp;
+                //item.PChange = resp.ResultObject.DayChangePerc;
             }
         }
         IsLoading = false;
@@ -34,21 +34,24 @@ public partial class EquityMarket
 
     protected async Task GetDataAsync(BuyStratergy buyStratergy)
     {
+        IsLoading = true;
         Stratergy = buyStratergy;
-        Expression<Func<EquityStock, bool>> filter = e => e.IsActive && e.RankByGroww >= 75 && e.PE < 60 && e.ROE >= 15;
+        Expression<Func<EquityPriceHistory, bool>> filter = e => e.Equity.IsActive && e.Equity.RankByGroww >= 75 && e.Equity.PE < 60 
+                                                            && e.Equity.ROE >= 15 && e.Date == Date;
         if (buyStratergy == BuyStratergy.RSIBelow35)
             filter = filter.AndAlso(e => e.RSI <= 35);
         if (buyStratergy == BuyStratergy.RSI14EMADiffLess1)
             filter = filter.AndAlso(e => e.RSI14EMADiff < -1);
 
-        var equityResult = EquityStocksRepo.FindAll(filter, orderBy: e => e.OrderBy("RankByGroww", "DESC"));
+        var equityResult = HistoryRepo.FindAll(filter, includeProperties: "Equity", orderBy: e => e.OrderBy("Equity.RankByGroww", "DESC"));
         var trades = await equityResult.ResultObject.ToListAsync();
-        TodaysTrades = Mapper.Map<List<EquityStockDto>>(trades);
+        TodaysTrades = Mapper.Map<List<EquityPriceHistoryDto>>(trades);
 
         var boughtStocks = await TradeRepo.FindAll(x=>x.SellDate == null).ResultObject.Select(x => x.Code).ToListAsync();
         TodaysTrades.ForEach(e => e.BuyAlready = boughtStocks.Contains(e.Code));
+        IsLoading = false;
     }
-    protected async Task BuyTrade(EquityStockDto equity)
+    protected async Task BuyTrade(EquityPriceHistoryDto equity)
     {
         IsLoading = true;
         var tradeTaken = await TradeRepo.FindAll(x => x.Code == equity.Code && !x.SellDate.HasValue).ResultObject.FirstOrDefaultAsync();
@@ -60,20 +63,21 @@ public partial class EquityMarket
             return;
         }
 
-        int quantity = 1 + (int)(10000 / equity.LTP).ToFixed();
+        int quantity = 1 + (int)(10000 / equity.Close).ToFixed();
+
         var trade = new VirtualTrade
         {
-            LTP         = equity.LTP,
+            LTP         = equity.Equity.LTP,
             Stratergy   = Stratergy,
             BuyDate     = Date,
-            BuyRate     = equity.LTP,
+            BuyRate     = equity.Close,
             Code        = equity.Code,
             Name        = equity.Name,
             Quantity    = quantity,
-            BuyValue    = quantity * equity.LTP,
-            Target      = equity.LTP + (equity.LTP * 5 / 100),
-            StopLoss    = equity.LTP - (equity.LTP * 7 / 100),
-            EquityId    = equity.Id
+            BuyValue    = quantity * equity.Close,
+            Target      = equity.Close + (equity.Close * 5 / 100),
+            StopLoss    = equity.Close - (equity.Close * 7 / 100),
+            EquityId    = equity.Equity.Id
         };
 
         var tradeResult = await TradeRepo.CreateAsync(trade, UserId);

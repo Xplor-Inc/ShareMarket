@@ -12,5 +12,6 @@ public class MappingProfile : Profile
 
         CreateMap<User, UserDto>().ReverseMap();
         CreateMap<EquityStock, EquityStockDto>().ReverseMap();
+        CreateMap<EquityPriceHistory, EquityPriceHistoryDto>().ReverseMap();
     }
 }

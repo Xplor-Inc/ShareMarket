@@ -35,25 +35,27 @@
     protected async Task LTPUpdate()
     {
         IsLoading = true;
-        foreach (var item in Trades)
+        foreach (var item in Trades.Where(s => s.SellDate is null))
         {
             var resp = await GrowwService.GetLTPPrice(item.Code);
             if (!resp.HasErrors && resp.ResultObject != null)
             {
                 item.LTP = resp.ResultObject.Ltp;
-                item.Equity.PChange = resp.ResultObject.DayChangePerc;
+                item.Equity.DayHigh = resp.ResultObject.High;
+                //item.Equity.PChange = resp.ResultObject.DayChangePerc;
             }
         }
         IsLoading = false;
-        var updateResult = await TradeRepo.UpdateAsync(Trades, SystemConstant.SystemUserId);
-        if (updateResult.HasErrors)
-        {
-            await NotificationService.Error(updateResult.GetErrors());
-        }
+        // var updateResult = await TradeRepo.UpdateAsync(Trades, SystemConstant.SystemUserId);
+        // if (updateResult.HasErrors)
+        // {
+        //     await NotificationService.Error(updateResult.GetErrors());
+        // }
         StateHasChanged();
+        await NotificationService.Success($"Success : Trade LTP updated successfully", "Success");
     }
 
-    protected async Task BuyTrade(VirtualTrade trade)
+    protected async Task SellTrade(VirtualTrade trade)
     {
         IsLoading = true;
         var tradeTaken = await TradeRepo.FindAll(x => x.Id == trade.Id && x.SellDate == null).ResultObject.FirstOrDefaultAsync();
@@ -182,9 +184,9 @@
                             {
                                 <Button Class="btn btn-primary">Sold</Button>
                             }
-                            else if (row.LTP >= row.Target)
+                            else if (row.Equity.DayHigh >= row.Target)
                             {
-                                <Button Clicked="()=>BuyTrade(row)" Class="btn btn-success">Sell</Button>
+                                <Button Clicked="()=>SellTrade(row)" Class="btn btn-success">Sell</Button>
                             }
                             else
                             {

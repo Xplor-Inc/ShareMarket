@@ -42,7 +42,7 @@ public partial class Home : Form
     private async void BtnGrowwLTP_Click(object sender, EventArgs e)
     {
         var DbContext = new ShareMarketContext();
-        var date = DateOnly.FromDateTime(DateTime.Now.AddDays(-1));
+        var date = DateOnly.FromDateTime(DateTime.Now.AddDays(0));
         var startTime = DateTime.Now;
         var x1 = MessageBox.Show($"Are you sure to process to data fro {date:dd-MMM}", "Confirm", MessageBoxButtons.OKCancel);
         if (x1 == DialogResult.Cancel) return;

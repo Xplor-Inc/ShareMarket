@@ -27,6 +27,7 @@
     }
     <span style="font-size:14px; color:green">(Target 5%)</span>
     <span style="font-size:14px; color:red">(SL 7%)</span>
+    <span style="font-size:14px;">(Date : @Date.ToString("dddd, dd-MMM-yyyy")</span>
 </h3>
 <div class="row"> 
     <div class="col-1">
@@ -55,12 +56,12 @@
                     <th>Target</th>
                     <th>SL</th>
                     <th>RSI</th>
-                    <th>5DMA</th>
+@*                     <th>5DMA</th>
                     <th>10DMA</th>
                     <th>20DMA</th>
                     <th>50DMA</th>
                     <th>100DMA</th>
-                    <th>RSI Diff</th>
+ *@                    <th>RSI Diff</th>
                     <th>Groww Rank</th>
                     <th>Action</th>
                 </tr>
@@ -72,49 +73,49 @@
                     <tr>
                         <td>@(i + 1)</td>
                         <td title="@row.Name">@row.Code</td>
-                        <td>@row.LTP</td>
+                        <td>@row.Equity.LTP</td>
                         <td>
-                            <span class="bg-tags" style="color:@(row.PChange > 0 ? green : red);
-                        background-color:@(row.PChange > 0 ? green.HexToRGBA() : red.HexToRGBA())">
-                                @row.PChange.ToString("#.##")
+                            <span class="bg-tags" style="color:@(row.Equity.PChange > 0 ? green : red);
+                        background-color:@(row.Equity.PChange > 0 ? green.HexToRGBA() : red.HexToRGBA())">
+                                @row.Equity.PChange.ToString("#.##")
                             </span>
 
                         </td>
-                        <td>@(row.LTP + (row.LTP * 5 / 100))</td>
-                        <td>@(row.LTP - (row.LTP * 7 / 100))</td>
+                        <td>@(row.Equity.LTP + (row.Equity.LTP * 5 / 100))</td>
+                        <td>@(row.Equity.LTP - (row.Equity.LTP * 7 / 100))</td>
                         <td>@row.RSI</td>
-                        <td>
-                            <span class="bg-tags" style="color:@(row.DMA5 > row.LTP ? green : red);
-                        background-color:@(row.DMA5 > row.LTP ? green.HexToRGBA() : red.HexToRGBA())">
+                       @*  <td>
+                            <span class="bg-tags" style="color:@(row.DMA5 > row.Equity.LTP ? green : red);
+                        background-color:@(row.DMA5 > row.Equity.LTP ? green.HexToRGBA() : red.HexToRGBA())">
                                 @row.DMA5
                             </span>
                         </td>
                         <td>
-                            <span class="bg-tags" style="color:@(row.DMA10 > row.LTP ? green : red);
-                        background-color:@(row.DMA10 > row.LTP ? green.HexToRGBA() : red.HexToRGBA())">
+                            <span class="bg-tags" style="color:@(row.DMA10 > row.Equity.LTP ? green : red);
+                        background-color:@(row.DMA10 > row.Equity.LTP ? green.HexToRGBA() : red.HexToRGBA())">
                                 @row.DMA10
                             </span>
                         </td>
                         <td>
-                            <span class="bg-tags" style="color:@(row.DMA20 > row.LTP ? green : red);
-                        background-color:@(row.DMA20 > row.LTP ? green.HexToRGBA() : red.HexToRGBA())">
+                            <span class="bg-tags" style="color:@(row.DMA20 > row.Equity.LTP ? green : red);
+                        background-color:@(row.DMA20 > row.Equity.LTP ? green.HexToRGBA() : red.HexToRGBA())">
                                 @row.DMA20
                             </span>
                         </td>
                         <td>
-                            <span class="bg-tags" style="color:@(row.DMA50 > row.LTP ? green : red);
-                        background-color:@(row.DMA50 > row.LTP ? green.HexToRGBA() : red.HexToRGBA())">
+                            <span class="bg-tags" style="color:@(row.DMA50 > row.Equity.LTP ? green : red);
+                        background-color:@(row.DMA50 > row.Equity.LTP ? green.HexToRGBA() : red.HexToRGBA())">
                                 @row.DMA50
                             </span>
                         </td>
                         <td>
-                            <span class="bg-tags" style="color:@(row.DMA100 > row.LTP ? green : red);
-                        background-color:@(row.DMA100 > row.LTP ? green.HexToRGBA() : red.HexToRGBA())">
+                            <span class="bg-tags" style="color:@(row.DMA100 > row.Equity.LTP ? green : red);
+                        background-color:@(row.DMA100 > row.Equity.LTP ? green.HexToRGBA() : red.HexToRGBA())">
                                 @row.DMA100
                             </span>
-                        </td>
+                        </td> *@
                         <td>@row.RSI14EMADiff</td>
-                        <td>@row.RankByGroww</td>
+                        <td>@row.Equity.RankByGroww</td>
                         <td>
                             @if (row.BuyAlready)
                             {

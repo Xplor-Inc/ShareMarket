@@ -2,6 +2,8 @@
 
 public class EquityPriceHistoryDto : AuditableDto
 {
+    public bool BuyAlready { get; set; }
+
     public decimal  Avg14DaysProfit { get; set; }
     public decimal  Avg14DaysLoss   { get; set; }
     public decimal  Close           { get; set; }
